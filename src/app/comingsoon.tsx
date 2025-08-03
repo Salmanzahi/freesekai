@@ -12,7 +12,7 @@ export default function ComingSoon() {
             This Website is Under Maintenance !
       </h2>
       <p className="text-sm">
-    we are going to planned migrate our tech system to a better and faster one and refactor web codebase (the old web kinda cranky and not secure enough)
+    we're planning to migrate our tech system to a better and faster one, and to  refactor web codebase (the old web kinda cranky and not secure enough)
       </p>  
  <div className="max-w-sm mx-auto mt-8 shadow-md flex gap-3 items-center justify-center"> 
         <Image
