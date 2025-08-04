@@ -6,13 +6,13 @@ export default function ComingSoon() {
     <div>
               <h1 className="text-5xl mb-4"> New Gen of FREESEKAI</h1>
       <h2 className="text-4xl mb-4">
-           Oops.... :(
+           Oops.... 
       </h2>
       <h2 className="text-4xl mb-4">
             This Website is Under Maintenance !
       </h2>
       <p className="text-sm">
-    we're planning to migrate our tech system to a better and faster one, and to  refactor web codebase (the old web kinda cranky and not secure enough)
+    we&apos;re planning to migrate our tech system to a better and faster one, and to  refactor web codebase (the old web kinda cranky and not secure enough)
       </p>  
  <div className="max-w-sm mx-auto mt-8 shadow-md flex gap-3 items-center justify-center"> 
         <Image
