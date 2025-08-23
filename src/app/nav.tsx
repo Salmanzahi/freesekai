@@ -1,19 +1,42 @@
-import React from 'react';
+"use client";
+
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/components/ui/drawer';
 import { Menu } from 'lucide-react';
 import { ModeToggle } from '@/components/mode-toggle';
 
 const Nav = () => {
+  const [prevScrollPos, setPrevScrollPos] = useState(0);
+  const [visible, setVisible] = useState(true);
+  const [isTransparent, setIsTransparent] = useState(true);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollPos = window.scrollY;
+
+      setVisible(prevScrollPos > currentScrollPos || currentScrollPos < 10);
+      setPrevScrollPos(currentScrollPos);
+      setIsTransparent(currentScrollPos < 10);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [prevScrollPos]);
+
   return (
-    <nav className=' absolute w-full p-4 flex items-center justify-between z-100'>
+    <nav 
+      className={`fixed w-full p-4 flex items-center justify-between z-100 transition-transform duration-300 ${isTransparent ? 'bg-transparent' : 'bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'} ${
+        visible ? 'translate-y-0' : '-translate-y-full'
+      }`}
+    >
       <div className='flex flex-col items-center'>
         <h1 className='text-3xl font-bold tracking-wider freesekai-gradient'>FREESEKAI</h1>
         <p className='text-sm tracking-normal text-gray-500 font-semibold'>Anonymous Forum</p>
@@ -52,19 +75,19 @@ const Nav = () => {
       </div>
 
       <div className='md:hidden'>
-        <Sheet>
-          <SheetTrigger asChild>
+        <Drawer>
+          <DrawerTrigger asChild>
             <Button variant="ghost" size="icon">
               <Menu className="h-6 w-6" />
             </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className='w-[20rem] z-100'>
-            <SheetHeader className='text-center font-semibold'>
-              <SheetTitle className='freesekai-gradient text-2xl font-bold tracking-wider'>FREESEKAI</SheetTitle>
-              <SheetDescription>
+          </DrawerTrigger>
+          <DrawerContent className='border-[#504e4e]'>
+            <DrawerHeader className='text-center font-semibold'>
+              <DrawerTitle className='freesekai-gradient text-2xl font-bold tracking-wider'>FREESEKAI</DrawerTitle>
+              <DrawerDescription>
                 Which Side do u want to visit?
-              </SheetDescription>
-            </SheetHeader>
+              </DrawerDescription>
+            </DrawerHeader>
             <div className="flex flex-col gap-2 mt-4 pt-2 p-8">
               <Button asChild variant="ghost">
                 <a 
@@ -94,15 +117,12 @@ const Nav = () => {
                   Discord Server
                 </a>
               </Button>
-           <div className='flex'>
-              <ModeToggle />
-           </div>
-                
-         
-            
+              <div className='flex'>
+                <ModeToggle />
+              </div>
             </div>
-          </SheetContent>
-        </Sheet>
+          </DrawerContent>
+        </Drawer>
       </div>
     </nav>
   );

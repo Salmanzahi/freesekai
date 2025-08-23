@@ -11,6 +11,7 @@ export default function Home() {
       {/* <TabsDemo /> */}
       <HeroPage />
       <SecHero />
+      {/* <SecHero /> */}
     </div>
   );
 }
