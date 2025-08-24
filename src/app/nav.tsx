@@ -10,7 +10,23 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer';
-import { Menu } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import Link from 'next/link';
+import { Menu, ChevronDown } from 'lucide-react';
 import { ModeToggle } from '@/components/mode-toggle';
 
 const Nav = () => {
@@ -71,6 +87,24 @@ const Nav = () => {
             Discord Server
           </a>
         </Button>
+        <Button asChild className='px-5'>
+<DropdownMenu>
+  <DropdownMenuTrigger asChild>
+    <Button variant="outline" className="w-[150px]">
+      Account
+      <ChevronDown className="ml-2 h-4 w-4" />
+    </Button>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent className='z-[2000]'>
+    <DropdownMenuItem>
+      <Link href="/login">Login</Link>
+    </DropdownMenuItem>
+    <DropdownMenuItem>
+      <Link href="/register">Register</Link>
+    </DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>
+        </Button>
         <ModeToggle />
       </div>
 
@@ -87,7 +121,24 @@ const Nav = () => {
               <DrawerDescription>
                 Which Side do u want to visit?
               </DrawerDescription>
+              
             </DrawerHeader>
+               <DropdownMenu>
+  <DropdownMenuTrigger asChild>
+    <Button variant="outline" className="w-[50%] mx-auto flex items-center justify-center">
+      Account
+      <ChevronDown className="ml-2 h-4 w-4" />
+    </Button>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent className='z-[2000]'>
+    <DropdownMenuItem className="flex justify-center">
+      <Link href="/login">Login</Link>
+    </DropdownMenuItem>
+    <DropdownMenuItem className="flex justify-center">
+      <Link href="/register">Register</Link>
+    </DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>
             <div className="flex flex-col gap-2 mt-4 pt-2 p-8">
               <Button asChild variant="ghost">
                 <a 
@@ -117,6 +168,7 @@ const Nav = () => {
                   Discord Server
                 </a>
               </Button>
+           
               <div className='flex'>
                 <ModeToggle />
               </div>

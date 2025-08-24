@@ -10,7 +10,7 @@ export default function Home() {
     <div className="text-center text-4xl font-semibold ">
       {/* <TabsDemo /> */}
       <HeroPage />
-      <SecHero />
+
       {/* <SecHero /> */}
     </div>
   );
