@@ -28,6 +28,12 @@ import {
 import Link from 'next/link';
 import { Menu, ChevronDown } from 'lucide-react';
 import { ModeToggle } from '@/components/mode-toggle';
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getFirestore, collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
+import { auth, firedb } from '@/lib/firebase';
+
 
 const Nav = () => {
   const [prevScrollPos, setPrevScrollPos] = useState(0);
