@@ -7,7 +7,7 @@ export default function SecHero() {
           Coming Soon...
         </h1>
         <p className=" text-center text-xl leading-relaxed text-gray-600 max-w-2xl">
-          Freesekai is coming soon. We aresss currently rebuilding our website to improve security and performance. The previous version had performance issues and security vulnerabilities that we are addressing in this update.
+          Freesekai is under development. We are currently rebuilding the  website to improve security and performance also the user interface (UI). Hope u guys can wait for the release version :D.
         </p>
     </div>
       
