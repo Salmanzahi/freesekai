@@ -41,7 +41,7 @@ async function registerUser(e: React.FormEvent<HTMLFormElement>) {
     await registerUserWithEmailAndPassword(email.value, password.value);
     alert("User registered successfully");
   } catch (error) {
-    alert("Error registering user");
+    alert("Error registering usewr");
     console.error(error);
   }
 }
