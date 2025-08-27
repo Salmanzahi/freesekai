@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Drawer,
+  DrawerClose,
   DrawerContent,
   DrawerDescription,
   DrawerHeader,
@@ -142,15 +143,18 @@ const Nav = () => {
     </Button>
   </DropdownMenuTrigger>
   <DropdownMenuContent className='z-[2000]'>
-    <DropdownMenuItem className="flex justify-center">
+   
+        <DropdownMenuItem>
       <Link href="/login">Login</Link>
     </DropdownMenuItem>
-    <DropdownMenuItem className="flex justify-center">
+    <DropdownMenuItem>
       <Link href="/register">Register</Link>
     </DropdownMenuItem>
+  
   </DropdownMenuContent>
 </DropdownMenu>
             <div className="flex flex-col gap-2 mt-4 pt-2 p-8">
+            
               <Button asChild variant="ghost">
                 <a 
                   href='https://www.instagram.com/salmanzahi1104/' 

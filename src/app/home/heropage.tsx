@@ -22,7 +22,7 @@ export default function HeroPage() {
         <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto animate__animated animate__fadeInUp animate__delay-2s">Vast of Secret Ready to be discussed </p>
       </div>
     </div>
- <CardLoad/>
+
     </div>
    
   )
