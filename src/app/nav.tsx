@@ -60,8 +60,13 @@ const Nav = () => {
       }`}
     >
       <div className='flex flex-col items-center'>
-        <h1 className='text-3xl font-bold tracking-wider freesekai-gradient'>FREESEKAI</h1>
-        <p className='text-sm tracking-normal text-gray-500 font-semibold'>Anonymous Forum</p>
+      
+          <Link href="/">
+            <h1 className='text-3xl font-bold tracking-wider freesekai-gradient'>FREESEKAI</h1>
+             <p className=' text-center text-sm tracking-normal text-gray-500 font-semibold'>Anonymous Forum</p>
+          </Link>
+
+       
       </div>
 
       <div className='hidden md:flex gap-4 items-center'>

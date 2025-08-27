@@ -12,6 +12,11 @@ import { Separator } from "@/components/ui/separator"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import Image from 'next/image';
 import { isAdmin } from '@/lib/isAdmin';
+import { MessageCircleReply, Send} from 'lucide-react';
+// import { }
+import { Textarea } from '@/components/ui/textarea';
+import {Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger} from "@/components/ui/drawer"
+// import { Image } from 'lucide-react';
 // import { Separator } from '@radix-ui/react-select';
 interface Post {
   id: string;
@@ -123,21 +128,47 @@ function PostCard({ post }: { post: Post }) {
         <p className='text-sm text-muted-foreground'>No image provided.</p>
         )}
          <p
-          className="break-words text-base md:text-lg leading-relaxed text-foreground/90 mt-2"
+          className="text-left break-words text-[18px] leading-relaxed font-normal mt-2"
           dangerouslySetInnerHTML={{ __html: post.text }}
         ></p>
       </CardContent>
       <CardFooter className="flex flex-col gap-2 pt-4 mt-3 border-t border-border/40">
         {replies.length > 0 ? (
           <div className="space-y-2 w-full">
-            {replies.map(reply => (
-              <div
-                key={reply.id}
-                className="pl-3 border-l-2 border-border/40 text-sm leading-relaxed text-muted-foreground"
-              >
-                {reply.text}
-              </div>
-            ))}
+            <Drawer>
+              <DrawerTrigger asChild>
+                <Button variant="ghost" className='text-left text-[16px] leading-relaxed font-normal hover:text-primary transition-colors p-0'>
+                  <MessageCircleReply className='inline-block w-8 h-8 ' />
+                  View Replies
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent>
+                <DrawerHeader>
+                  <DrawerTitle>Replies</DrawerTitle>
+                  <DrawerDescription>View all replies for this post</DrawerDescription>
+                </DrawerHeader>
+                <div className="p-4 space-y-4">
+                  <Textarea
+                    placeholder="Write a reply..."
+                    className="resize-none"
+                  />
+                  <Button variant='default' className='md:mx-auto block w-1/4'>
+                    <Send className='inline-block w-5 h-5 mr-2' />
+                    Send
+                  </Button>
+                  {replies.map(reply => (
+                    <div key={reply.id} className="p-3 rounded-lg bg-muted/50">
+                      <p className="text-sm">{reply.text}</p>
+                    </div>
+                  ))}
+                </div>
+                {/* <DrawerFooter>
+                  <DrawerClose asChild>
+                    <Button variant="outline">Close</Button>
+                  </DrawerClose>
+                </DrawerFooter> */}
+              </DrawerContent>
+            </Drawer>
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">No replies yet.</p>
