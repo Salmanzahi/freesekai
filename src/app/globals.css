@@ -1,21 +1,66 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@custom-variant dark (&:is(.dark *));
+
 body {
   margin: 0;
   padding: 0;
   box-sizing: 0;
 }
 
-
-
 .freesekai-gradient {
-  background-image: linear-gradient(to right, #3b82f6, #a855f7, #ec4899);
+  background-image: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 35%, #a855f7 65%, #ec4899 100%);
+  background-size: 200% 200%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  animation: gradient-shift 4s ease-in-out infinite;
 }
 
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Enhanced navbar styling */
+.navbar-glass {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .navbar-glass {
+  background: rgba(0, 0, 0, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-link-hover {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-link-hover::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(135deg, #3b82f6, #a855f7, #ec4899);
+  border-radius: 1px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(-50%);
+}
+
+.nav-link-hover:hover::after {
+  width: 100%;
+}
 
 .gradient-chart {
   background: linear-gradient(45deg, 
@@ -178,4 +223,67 @@ body {
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Quill editor styles to improve layout and dark mode integration */
+.quill-editor {
+  margin-top: 0.5rem;
+}
+
+.quill-editor .ql-toolbar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 0.375rem 0.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.quill-editor .ql-tooltip {
+  background: var(--card);
+}
+
+.quill-editor .ql-container {
+  border: 1px solid var(--border);
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: var(--card);
+  color: var(--card-foreground);
+  min-height: 140px;
+  box-shadow: var(--shadow);
+}
+
+.quill-editor .ql-editor {
+  min-height: 120px;
+  padding: 0.75rem;
+  color: inherit;
+  font-family: var(--font-sans);
+}
+
+/* Placeholder color */
+.quill-editor .ql-editor.ql-blank::before {
+  color: var(--muted-foreground);
+  left: 0.75rem;
+}
+
+.quill-editor .ql-editor p {
+  margin: 0 0 0.5rem 0;
+}
+
+.dark .quill-editor .ql-toolbar,
+.dark .quill-editor .ql-container {
+  background: var(--card);
+}
+
+.quill-editor img {
+  max-width: 100%;
+  height: auto;
 }

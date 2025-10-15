@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { rtdb } from '@/lib/firebase';
-import { ref, onValue, off } from 'firebase/database';
+import { ref, onValue, off, push } from 'firebase/database';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,6 +16,8 @@ import { MessageCircleReply, Send} from 'lucide-react';
 // import { }
 import { Textarea } from '@/components/ui/textarea';
 import {Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger} from "@/components/ui/drawer"
+import { set } from 'firebase/database';
+import { isAuth } from '@/lib/isauth';
 // import { Image } from 'lucide-react';
 // import { Separator } from '@radix-ui/react-select';
 interface Post {
@@ -32,7 +34,7 @@ interface Reply {
   id: string;         
   text: string;
 }
-
+  const authStatus = await isAuth();    
 
 function useReplies(postId: string) {
   const [replies, setReplies] = useState<Reply[]>([]);
@@ -47,6 +49,9 @@ function useReplies(postId: string) {
           id: key,
           ...data[key],
         }));
+
+        // sort by latest first
+        // repliesArray.sort((a, b) => b.id.localeCompare(a.id));
         setReplies(repliesArray);
       } else {
         setReplies([]);
@@ -67,8 +72,7 @@ function useReplies(postId: string) {
 function PostCard({ post }: { post: Post }) {
   const replies = useReplies(post.id);
   const [isAdminUser, setIsAdminUser] = useState(false);
-
-
+  const [replyText, setReplyText] = useState("");
 
   // check admin status
   useEffect(() => {
@@ -78,6 +82,16 @@ function PostCard({ post }: { post: Post }) {
     };
     checkAdminStatus();
   }, [post.id]);
+
+  // Handler for sending a reply
+  const handleSendReply = async () => {
+    if (replyText.trim()) {
+      await newReplies(post.id, replyText);
+      setReplyText("");
+    }
+  };
+
+
 
   return (
     <Card className="flex flex-col w-full max-w-3xl mx-auto rounded-2xl border border-border/30 bg-white/5 shadow-sm hover:shadow-md transition-shadow">
@@ -142,32 +156,39 @@ function PostCard({ post }: { post: Post }) {
                   View Replies
                 </Button>
               </DrawerTrigger>
-              <DrawerContent>
+                <DrawerContent>
                 <DrawerHeader>
                   <DrawerTitle>Replies</DrawerTitle>
                   <DrawerDescription>View all replies for this post</DrawerDescription>
                 </DrawerHeader>
-                <div className="p-4 space-y-4">
+                <div className="p-4 flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
                   <Textarea
-                    placeholder="Write a reply..."
-                    className="resize-none"
+                  placeholder="Write a reply..."
+                  className="resize-none"
+                  value={replyText}
+                  onChange={e => setReplyText(e.target.value)}
                   />
-                  <Button variant='default' className='md:mx-auto block w-1/4'>
-                    <Send className='inline-block w-5 h-5 mr-2' />
-                    Send
+                  <Button
+                  variant='default'
+                  className='md:mx-auto block w-1/4'
+                  onClick={handleSendReply}
+                  disabled={!replyText.trim()}
+                  >
+                  <Send className='inline-block w-5 h-5 mr-2' />
+                  Send
                   </Button>
                   {replies.map(reply => (
-                    <div key={reply.id} className="p-3 rounded-lg bg-muted/50">
-                      <p className="text-sm">{reply.text}</p>
-                    </div>
+                  <div key={reply.id} className="p-3 rounded-lg bg-muted/50">
+                    <p className="text-sm">{reply.text}</p>
+                  </div>
                   ))}
                 </div>
                 {/* <DrawerFooter>
                   <DrawerClose asChild>
-                    <Button variant="outline">Close</Button>
+                  <Button variant="outline">Close</Button>
                   </DrawerClose>
                 </DrawerFooter> */}
-              </DrawerContent>
+                </DrawerContent>
             </Drawer>
           </div>
         ) : (
@@ -261,3 +282,18 @@ export default function CardLoad() {
   );
 }
 
+
+
+
+export async function newReplies(postId: string, text: string) {
+ 
+
+  if (!authStatus) {
+    // throw new Error("User is not authenticated");
+    alert("You must be logged in to reply."  + authStatus);
+  } else {
+    const repliesRef = ref(rtdb, `messages/${postId}/replies`);
+    push(repliesRef, { text });
+  }
+
+}
