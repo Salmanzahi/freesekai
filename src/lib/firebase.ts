@@ -1,8 +1,8 @@
 // lib/firebase.ts
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getFirestore, collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
-import { getDatabase, ref } from "firebase/database";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getDatabase } from "firebase/database";
+import { getAuth } from "firebase/auth";
 // import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 
 
@@ -22,4 +22,3 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const firedb = getFirestore(app);
 export const auth = getAuth(app);
 export const rtdb = getDatabase(app);
-

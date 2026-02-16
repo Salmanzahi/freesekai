@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { rtdb, auth } from "@/lib/firebase"
+import { auth } from "@/lib/firebase"
 import { signInWithEmailAndPassword as firebaseSignIn } from "firebase/auth";
 
 import { Input } from "@/components/ui/input"
@@ -65,8 +65,8 @@ export default function Login() {
     
     try {
       await handlelogin(e);
-    } catch (err: any) {
-      setError(err.message || "Failed to login");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to login");
     } finally {
       setIsLoading(false);
     }
@@ -131,7 +131,11 @@ export default function Login() {
         <Button type="submit" className="w-full mt-4 mb-2" disabled={isLoading}>
           {isLoading ? "Logging in..." : "Login"}
         </Button>
-           <Button variant="outline" className="w-full">
+           <Button 
+           variant="outline" 
+           className="w-full"
+  
+           >
         Login with Google
       </Button>
       </form>

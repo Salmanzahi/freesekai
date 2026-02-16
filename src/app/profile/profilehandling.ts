@@ -1,46 +1,40 @@
-import { ref, get, set } from "firebase/database";
+'use client'
+
+
 import type { User } from "firebase/auth";
-import { rtdb } from "@/lib/firebase";
 import { supabase } from "@/lib/supabase";
+import { firedb } from "@/lib/firebase";
+import { setDoc, getDoc, doc } from "firebase/firestore";
 
 export type UsernameResult = {
   username: string | null;
   exists: boolean;
 };
 
-/**
- * Fetch username for a given uid from RTDB.
- * Returns an object with the username (or null) and whether the node existed.
- */
 export async function fetchUsernameByUid(uid: string): Promise<UsernameResult> {
-  const userRef = ref(rtdb, `users/${uid}/username`);
-  const snapshot = await get(userRef);
+  const docRef = doc(firedb, 'users', uid);
+  const snapshot = await getDoc(docRef);
+
   if (!snapshot.exists()) return { username: null, exists: false };
-  return { username: snapshot.val() as string, exists: true };
+
+  const userData = snapshot.data();
+  return { username: (userData.username as string) ?? null, exists: true };
 }
 
-/**
- * Update username for a given uid in RTDB.
- */
+
 export async function updateUsername(uid: string, newUsername: string): Promise<void> {
-  const userRef = ref(rtdb, `users/${uid}/username`);
-  await set(userRef, newUsername);
+  const userRef = doc(firedb, 'users', uid);
+  await setDoc(userRef, { username: newUsername }, { merge: true });
 }
 
-/**
- * Validate a username according to project rules.
- * - only letters, numbers and underscore
- * - length between min and max inclusive
- */
+
 export function validateUsername(value: string, min = 5, max = 20): { ok: boolean; reason?: string } {
   if (/[^A-Za-z0-9_]/.test(value)) return { ok: false, reason: "invalid_chars" };
   if (value.length < min || value.length > max) return { ok: false, reason: "length" };
   return { ok: true };
 }
 
-/**
- * Convenience: fetch username for a firebase User object (handles nulls).
- */
+
 export async function fetchUsernameForUser(user: User | null | undefined): Promise<UsernameResult> {
   if (!user) return { username: null, exists: false };
   return fetchUsernameByUid(user.uid);
@@ -48,28 +42,24 @@ export async function fetchUsernameForUser(user: User | null | undefined): Promi
 
 
 
-/**
- * Uploads a profile image file to the Supabase "media" bucket and updates the user's profileImage URL in RTDB.
- * @param uid - The user's unique id.
- * @param file - The image file to upload.
- * @returns The public URL of the uploaded image.
- */
 export async function changeImageProfile(uid: string, file: File): Promise<string> {
 
     const filePath = `avatar/${uid}/${Date.now()}_${file.name}`;
+    const userRef = doc(firedb, 'users', uid);
+    const userSnapshot = await getDoc(userRef);
+
     // Delete old profile image if it exists
-    const userImageRefOld = ref(rtdb, `users/${uid}/profileImage`);
-    const oldImageSnapshot = await get(userImageRefOld);
-    if (oldImageSnapshot.exists()) {
-        const oldUrl: string = oldImageSnapshot.val();
-        // Extract the path after the bucket name (media/)
-        const match = oldUrl.match(/media\/(.*)$/);
-        if (match && match[1]) {
-            await supabase.storage.from("media").remove([match[1]]);
+    if (userSnapshot.exists()) {
+        const oldUrl: string = userSnapshot.data().photoURL;
+        if (oldUrl) {
+            const match = oldUrl.match(/media\/(.*)$/);
+            if (match && match[1]) {
+                await supabase.storage.from("media").remove([match[1]]);
+            }
         }
     }
 
-    const { data, error } = await supabase.storage.from("media").upload(filePath, file, {
+    const { error } = await supabase.storage.from("media").upload(filePath, file, {
         cacheControl: "3600",
         upsert: true,
     });
@@ -80,16 +70,21 @@ export async function changeImageProfile(uid: string, file: File): Promise<strin
     const publicUrl = publicUrlData?.publicUrl;
     if (!publicUrl) throw new Error("Failed to get public URL for uploaded image.");
 
-    const userImageRef = ref(rtdb, `users/${uid}/profileImage`);
-    await set(userImageRef, publicUrl);
+    await setDoc(userRef, { photoURL: publicUrl }, { merge: true });
 
     return publicUrl;
 }
 
 
 export async function getProfileImageUrl(uid: string): Promise<string | null> {
-    const userImageRef = ref(rtdb, `users/${uid}/profileImage`);
-    const snapshot = await get(userImageRef);
+    const docRef = doc(firedb, 'users', uid);
+    const snapshot = await getDoc(docRef);
+
     if (!snapshot.exists()) return null;
-    return snapshot.val() as string;
+
+    return (snapshot.data().photoURL as string) ?? null;
 }
+
+
+
+

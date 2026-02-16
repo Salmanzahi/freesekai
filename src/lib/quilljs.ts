@@ -15,7 +15,7 @@ export type QuillSetupOptions = {
 export default async function setupQuill(
     container: string | HTMLElement,
     options: QuillSetupOptions = {}
-): Promise<any> {
+): Promise<InstanceType<typeof import('quill').default>> {
     const Quill = (await import('quill')).default;
     await import('quill/dist/quill.snow.css');
     const quill = new Quill(container, {

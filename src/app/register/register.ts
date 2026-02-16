@@ -1,7 +1,6 @@
 import { createUserWithEmailAndPassword as firebaseCreateUser } from "firebase/auth";
-import { rtdb, auth } from "@/lib/firebase";
-import { ref, set } from "firebase/database";
-
+import { auth, firedb } from "@/lib/firebase";
+import { setDoc, doc} from "firebase/firestore";
 
 export async function registerUserWithEmailAndPassword(email: string, password: string, username: string) {
   try {
@@ -20,8 +19,8 @@ export async function registerUserWithEmailAndPassword(email: string, password: 
 
 
 export async function createuserproperties(username: string, email: string, uid: string, photoURL: string, create_at: number, isAdmin: boolean = false) {
-  const userRef = ref(rtdb, `users/${uid}`);
-  await set(userRef, {
+  try {
+     await setDoc(doc(firedb, 'users', uid), {
     username,
     email,
     uid,
@@ -29,6 +28,13 @@ export async function createuserproperties(username: string, email: string, uid:
     create_at,
     isAdmin
   });
+  console.log("User properties succefully created");
+
+  } catch (error) {
+    console.error("Error creating user properties:", error);
+    throw error;
+  }
+ 
 }
 //  export async function checkAuthUser() {
 //   return new Promise((resolve, reject) => {

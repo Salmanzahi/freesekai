@@ -1,12 +1,13 @@
 import { auth } from './firebase';
+import type { User } from 'firebase/auth';
 
-type Listener = (user: any) => void;
+type Listener = (user: User | null) => void;
 
-let currentUser: any = null;
+let currentUser: User | null = null;
 let listeners: Listener[] = [];
 let initialized = false;
 
-function notify(user: any) {
+function notify(user: User | null) {
   currentUser = user;
   listeners.forEach((l) => l(user));
 }
@@ -39,9 +40,11 @@ export async function isAuthenticated(): Promise<boolean> {
   });
 }
 
-export default {
+const authModule = {
   initAuth,
   getCurrentUser,
   subscribe,
   isAuthenticated,
 };
+
+export default authModule;

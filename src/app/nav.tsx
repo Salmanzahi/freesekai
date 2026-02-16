@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
   DrawerHeader,
@@ -12,30 +11,17 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import Link from 'next/link';
 import { Menu, ChevronDown } from 'lucide-react';
 import { ModeToggle } from '@/components/mode-toggle';
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getFirestore, collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
-import { auth, firedb } from '@/lib/firebase';
-import { checkAuthUser } from './register/page';
-import { set } from 'firebase/database';
+import { signOut } from "firebase/auth";
+import { auth } from '@/lib/firebase';
+import { checkAuthUser } from '@/lib/regisauth';
 
 
 
@@ -63,13 +49,13 @@ const Nav = () => {
       try {
         await checkAuthUser();
         setIsAuthUser(true);
-      } catch (error) {
+      } catch {
         setIsAuthUser(false);
       }
     };
     checkAuth();
   }, []);
-  const [isAuthUser, setIsAuthUser] = useState(false);
+  const [, setIsAuthUser] = useState(false);
   return (
     <nav 
       className={`fixed w-full px-4 md:px-6 py-3 md:py-4 flex items-center justify-between z-50 transition-all duration-300 ${

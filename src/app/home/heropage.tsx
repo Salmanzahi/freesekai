@@ -3,12 +3,12 @@ import React from 'react'
 import Image from 'next/image'
 import takopi from './takopi.png'
 // import SecHero from  './secHero'
-import CardLoad from './cardload'
-// import CardLoad2 from './cardload2'
+// import CardLoad from './cardload'
 export default function HeroPage() {
   return (
     <div >
     <div className="animate__animated animate__fadeIn ">
+      
       <Image
         src={takopi}
         alt="hero"

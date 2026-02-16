@@ -11,33 +11,35 @@ type QuillEditorProps = {
 
 export default function QuillEditor({ value = '', onChange, placeholder }: QuillEditorProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const quillRef = useRef<any>(null);
+  const quillRef = useRef<InstanceType<typeof import('quill').default> | null>(null);
 
   useEffect(() => {
     let isMounted = true;
-    if (!containerRef.current) return;
+    const currentContainer = containerRef.current;
+    if (!currentContainer) return;
 
-    const wrapper = containerRef.current.parentElement;
+    const wrapper = currentContainer.parentElement;
     // Remove any existing Quill nodes to avoid duplicate toolbars (happens in StrictMode / remounts)
     if (wrapper) {
       wrapper.querySelectorAll('.ql-toolbar').forEach((n) => n.remove());
       wrapper.querySelectorAll('.ql-container').forEach((n) => n.remove());
     }
-    containerRef.current.innerHTML = '';
+    currentContainer.innerHTML = '';
 
     // Initialize Quill using your helper (async)
-    setupQuill(containerRef.current, { placeholder }).then((quill) => {
+    setupQuill(currentContainer, { placeholder }).then((quill) => {
       if (!isMounted) return;
       quillRef.current = quill;
+      const q = quill;
 
       // Set initial value
       if (value) {
-        quillRef.current.root.innerHTML = value;
+        q.root.innerHTML = value;
       }
 
       // Listen for changes
-      quillRef.current.on('text-change', () => {
-        const html = quillRef.current.root.innerHTML;
+      q.on('text-change', () => {
+        const html = q.root.innerHTML;
         onChange?.(html);
       });
     });
@@ -47,14 +49,15 @@ export default function QuillEditor({ value = '', onChange, placeholder }: Quill
       isMounted = false;
       if (quillRef.current) {
         try {
-          quillRef.current.off && quillRef.current.off('text-change');
-        } catch (e) {
+          if (typeof quillRef.current.off === 'function') {
+            quillRef.current.off('text-change');
+          }
+        } catch {
           // ignore
         }
         quillRef.current = null;
       }
-      // ensure no stray DOM nodes remain
-      const wrapperCleanup = containerRef.current?.parentElement;
+      const wrapperCleanup = currentContainer?.parentElement;
       if (wrapperCleanup) {
         wrapperCleanup.querySelectorAll('.ql-toolbar').forEach((n) => n.remove());
         wrapperCleanup.querySelectorAll('.ql-container').forEach((n) => n.remove());

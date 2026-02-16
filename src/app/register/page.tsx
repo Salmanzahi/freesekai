@@ -19,21 +19,21 @@ import { registerUserWithEmailAndPassword } from "@/app/register/register"
 import Link from "next/link"
 
 
-import { auth, rtdb } from "@/lib/firebase"
-import { onAuthStateChanged } from "firebase/auth"
+import { auth } from "@/lib/firebase"
+// onAuthStateChanged not needed here — checkAuthUser handles it
+import { checkAuthUser } from "@/lib/regisauth"
 
-
- export async function checkAuthUser() {
-  return new Promise((resolve, reject) => {
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        resolve(user);
-      } else {
-        reject(new Error("User not authenticated"));
-      }
-    });
-  });
-}
+//  export async function checkAuthUser() {
+//   return new Promise((resolve, reject) => {
+//     onAuthStateChanged(auth, (user) => {
+//       if (user) {
+//         resolve(user);
+//       } else {
+//         reject(new Error("User not authenticated"));
+//       }
+//     });
+//   });
+// }
 async function registerUser(e: React.FormEvent<HTMLFormElement>, setError: (msg: string) => void) {
   e.preventDefault();
 
@@ -66,7 +66,7 @@ export default function Register() {
       try {
         await checkAuthUser();
         setIsAuthUser(true);
-      } catch (error) {
+      } catch {
         setIsAuthUser(false);
       }
     };
@@ -82,7 +82,7 @@ export default function Register() {
         <CardHeader>
           <CardTitle>
             {isAuthUser
-              ? `You are already authenticated${auth.currentUser? ` as ${auth.currentUser.email}` : ""}`
+              ? `You are already authenticated${auth.currentUser ? ` as ${auth.currentUser.email}` : ""}`
               : "nope u not authenticated !"}
           </CardTitle>
           <CardDescription>
@@ -108,7 +108,7 @@ export default function Register() {
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
-                  name="email"        
+                  name="email"
                   type="email"
                   placeholder="m@example.com"
                   required
@@ -126,7 +126,7 @@ export default function Register() {
                 <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
-                  name="password"    
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   required
                 />
@@ -134,7 +134,7 @@ export default function Register() {
                 <Label htmlFor="confirm-password">Confirm Password</Label>
                 <Input
                   id="confirm-password"
-                  name="confirm-password"   
+                  name="confirm-password"
                   type={showPassword ? "text" : "password"}
                   required
                 />

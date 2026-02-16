@@ -6,10 +6,7 @@ import { useEffect } from "react"
 import { onAuthStateChanged } from "firebase/auth"
 import {
   Card,
-  CardAction,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -23,7 +20,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogC
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { rtdb, auth } from "@/lib/firebase";
+import { auth } from "@/lib/firebase";
 import { fetchUsernameByUid, updateUsername as updateusername, validateUsername, changeImageProfile} from "./profilehandling";
 import { getProfileImageUrl } from "./profilehandling"
 
@@ -272,16 +269,8 @@ function ProfilePicEditModal({ open, onClose }: { open: boolean; onClose: () => 
   );
 }
 
-export function ProfileWithPicEdit() {
-  const [modalOpen, setModalOpen] = useState(false);
+// check user is admin or not
 
-  return (
-    <>
-      <Profile />
-      <ProfilePicEditModal open={modalOpen} onClose={() => setModalOpen(false)} />
-    </>
-  );
-}
 
 
 // username update is handled in ./profilehandling
