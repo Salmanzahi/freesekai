@@ -1,16 +1,16 @@
 // import ComingSoon from "./comingsoon";
 
-import { TabsDemo } from "../components/tab";
+// import { TabsDemo } from "../components/tab";
 import HeroPage from "./home/heropage";
-import SecHero from "./home/secHero";
-
+// import SecHero from "./home/secHero";
+import CardLoad from "./home/cardload";
 
 export default function Home() {
   return (
     <div className="text-center text-4xl font-semibold ">
       {/* <TabsDemo /> */}
       <HeroPage />
-
+ <CardLoad/>
       {/* <SecHero /> */}
     </div>
   );
