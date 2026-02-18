@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { auth } from "@/lib/firebase"
-import { signInWithEmailAndPassword as firebaseSignIn } from "firebase/auth";
+
 
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -23,16 +23,15 @@ import {
 } from "lucide-react"
 
 
+import { loginWithEmailAndPassword, loginWithGoogle } from "./login";
+
 async function handlelogin(e: React.FormEvent) {
   e.preventDefault();
   const email = (e.target as HTMLFormElement).elements.namedItem('email') as HTMLInputElement;
   const password = (e.target as HTMLFormElement).elements.namedItem('password') as HTMLInputElement;
   try {
-    const userCredential = await firebaseSignIn(auth, email.value, password.value);
-    const user = userCredential.user;
-    console.log("User logged in:", user);
-    // direct user to home page
-    window.location.href = "/";
+    const user = await loginWithEmailAndPassword(email.value, password.value);
+    // login function handles redirect
     return user;
   } catch (error) {
     console.error("Error logging in user:", error);
@@ -131,10 +130,17 @@ export default function Login() {
         <Button type="submit" className="w-full mt-4 mb-2" disabled={isLoading}>
           {isLoading ? "Logging in..." : "Login"}
         </Button>
-           <Button 
+        <Button 
            variant="outline" 
+           type="button"
            className="w-full"
-  
+           onClick={async () => {
+             try {
+                await loginWithGoogle();
+             } catch {
+                // handle error
+             }
+           }}
            >
         Login with Google
       </Button>

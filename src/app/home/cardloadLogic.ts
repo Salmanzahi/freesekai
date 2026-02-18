@@ -1,5 +1,5 @@
 import { firedb } from '@/lib/firebase';
-import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, Timestamp, deleteDoc, doc } from 'firebase/firestore';
 import { useState, useEffect } from 'react';
 import { isAuth } from '@/lib/isauth';
 import { isAdmin } from '@/lib/isAdmin';
@@ -19,7 +19,7 @@ export interface Post {
 
 export interface Reply {
   id: string;
-  createdAt: Timestamp;
+  createdAt: Timestamp | null;
   text: string;
   userId: string;
 }
@@ -132,3 +132,26 @@ export async function newReplies(postId: string, text: string, replyUserId: stri
   return true;
 }
 
+
+export async function deletePost(postId: string, userId: string) {
+  const authStatus = await isAuth();
+
+  if (!authStatus) {
+    alert("You must be logged in to delete a post.");
+    return false;
+  }
+  try {
+    const userRed = collection(firedb, 'users', userId, 'posts');
+    const postsRef = collection(firedb, 'posts');
+    await deleteDoc(doc(postsRef, postId));
+    console.log('success 1')
+    await deleteDoc(doc(userRed, postId));
+    console.log('success 2')
+    
+    return true;
+  } catch (e) {
+    console.log(e);
+    return false;
+  }
+  
+}

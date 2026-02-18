@@ -66,6 +66,16 @@ export default function QuillEditor({ value = '', onChange, placeholder }: Quill
     // eslint-disable-next-line
   }, [containerRef, placeholder]);
 
+  // Sync value prop with Quill content (e.g., for clearing the editor)
+  useEffect(() => {
+    if (quillRef.current && value !== quillRef.current.root.innerHTML) {
+        // Only update if the content is actually different to avoid cursor jumping
+        // This is crucial when the parent component updates the value while the user is typing
+        // But imperative for clearing the editor when value becomes empty
+        quillRef.current.root.innerHTML = value;
+    }
+  }, [value]);
+
   return (
     <div className="quill-editor">
       <div ref={containerRef}></div>

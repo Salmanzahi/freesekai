@@ -1,16 +1,19 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import Image from 'next/image';
-import { MessageCircleReply, Send } from 'lucide-react';
+import { MessageCircleReply, Send, Trash } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
-
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { deletePost } from './cardloadLogic';
+// import authModule from '@/lib/auth';
 import {
   type Post,
   usePosts,
@@ -22,17 +25,44 @@ import {
 } from './cardloadLogic';
 
 
-function PostCard({ post }: { post: Post }) {
+export function PostCard({ post }: { post: Post }) {
+
+  
   const replies = useReplies(post.id);
+  const [myPost, setMyPost] = useState(false);
   const userData = useUserData(post.userId);
   const isAdminUser = useAdminStatus(post.userId);
   const [replyText, setReplyText] = useState("");
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setMyPost(user.uid === post.userId);
+      }
+    });
+    return () => unsubscribe();
+  }, [post.userId]);
   // const replyUserData = useUserData
 
   const handleSendReply = async () => {
-    if (replyText.trim()) {
-      await newReplies(post.id, replyText, post.userId);
+      const user = auth.currentUser
+    if (replyText.trim() && user) {
+      await newReplies(post.id, replyText, user.uid);
       setReplyText("");
+    } else if (!user) {
+      alert("Please login to reply");
+    }
+  };
+
+  const handleDeletePost = async () => {
+    const user = auth.currentUser
+    if (user) {
+      await deletePost(post.id, user.uid);
+      alert("Post deleted successfully");
+      return true;
+    } else {
+      alert("Please login to delete a post");
+      return false;
     }
   };
 
@@ -64,7 +94,7 @@ function PostCard({ post }: { post: Post }) {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-grow pt-1">
-        {post.image ? (
+        {post.image && (
           <div className="relative w-full">
             <Image
               src={post.image}
@@ -79,14 +109,18 @@ function PostCard({ post }: { post: Post }) {
               }}
             />
           </div>
-        ) : (
-          <p className='text-sm text-muted-foreground'>No image provided.</p>
         )}
         <p
           className="text-left break-words text-[18px] leading-relaxed font-normal mt-2"
           dangerouslySetInnerHTML={{ __html: post.body }}
         ></p>
       </CardContent>
+      {myPost && (
+        <Button variant="ghost" onClick={handleDeletePost} className='text-left text-[16px] leading-relaxed font-normal hover:text-primary transition-colors p-0'>
+          <Trash className='inline-block w-8 h-8'   />
+          Delete
+        </Button>
+      )}
       <CardFooter className="flex flex-col gap-2 pt-4 mt-3 border-t border-border/40">
         <div className="space-y-2 w-full">
           <Drawer>
@@ -95,6 +129,7 @@ function PostCard({ post }: { post: Post }) {
                 <MessageCircleReply className='inline-block w-8 h-8' />
                 View Replies
               </Button>
+              
             </DrawerTrigger>
             <DrawerContent>
               <DrawerHeader>
@@ -159,7 +194,7 @@ function ReplyCard({ reply }: { reply: Reply }) {
           <span className="text-sm font-semibold text-foreground/90 truncate">
             {replyUserData?.username || 'Anonymous'}
           </span>
-          <span className="text-xs text-muted-foreground whitespace-nowrap">{reply.createdAt.toDate().toLocaleString()}</span>
+<span className="text-xs text-muted-foreground whitespace-nowrap">{reply.createdAt?.toDate().toLocaleString() || 'Just now'}</span>
         </div>
         
         <p className="text-sm text-foreground/75 leading-relaxed break-words">

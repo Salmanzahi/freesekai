@@ -1,7 +1,7 @@
 
 import React from 'react'
 import Image from 'next/image'
-import takopi from './takopi.png'
+import takopi from './takopidark.png'
 // import SecHero from  './secHero'
 // import CardLoad from './cardload'
 export default function HeroPage() {
