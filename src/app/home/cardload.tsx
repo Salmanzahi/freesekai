@@ -1,20 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import Image from 'next/image';
-import { MessageCircleReply, Send, ThumbsUp, Trash } from 'lucide-react';
+import { Heart, MessageCircle, Send, Trash2, Clock } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { deletePost } from './cardloadLogic';
 import { likeHandling } from './likeHandling';
-// import authModule from '@/lib/auth';
 import {
   type Post,
   usePosts,
@@ -27,34 +26,20 @@ import {
 
 
 export function PostCard({ post }: { post: Post }) {
-
-  
   const replies = useReplies(post.id);
   const [myPost, setMyPost] = useState(false);
   const userData = useUserData(post.userId);
   const isAdminUser = useAdminStatus(post.userId);
   const [replyText, setReplyText] = useState("");
 
-  // useEffect(() => {
-  //   const unsubscribe = onAuthStateChanged(auth, (user) => {
-  //     if (user) {
-  //       setMyPost(user.uid === post.userId);
-  //     }
-  //   });
-  //   console.log('onAuthState triggred')
-  //   return () => unsubscribe();
-  // }, [post.userId]);
-
-
   onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setMyPost(user.uid === post.userId);
-      }
-    });
-  // const replyUserData = useUserData
+    if (user) {
+      setMyPost(user.uid === post.userId);
+    }
+  });
 
   const handleSendReply = async () => {
-      const user = auth.currentUser
+    const user = auth.currentUser;
     if (replyText.trim() && user) {
       await newReplies(post.id, replyText, user.uid);
       setReplyText("");
@@ -64,10 +49,9 @@ export function PostCard({ post }: { post: Post }) {
   };
 
   const handleLikePost = async () => {
-    const user = auth.currentUser
+    const user = auth.currentUser;
     if (user) {
       await likeHandling(post.id, user.uid);
-      alert("Post liked successfully");
       return true;
     } else {
       alert("Please login to like a post");
@@ -75,13 +59,10 @@ export function PostCard({ post }: { post: Post }) {
     }
   };
 
-
-
   const handleDeletePost = async () => {
-    const user = auth.currentUser
+    const user = auth.currentUser;
     if (user) {
       await deletePost(post.id, user.uid);
-      alert("Post deleted successfully");
       return true;
     } else {
       alert("Please login to delete a post");
@@ -89,109 +70,187 @@ export function PostCard({ post }: { post: Post }) {
     }
   };
 
-  return (
-    <Card className="flex flex-col w-full max-w-3xl mx-auto rounded-2xl border border-border/30 bg-white/5 shadow-sm hover:shadow-md transition-shadow">
-      <CardHeader className="pb-2">
-          <div className='flex flex-row items-center gap-2'>
-            <Avatar className="w-8 h-8">
-              <AvatarImage src={userData?.photoURL || ''} alt={userData?.username || 'User'} />
-              {isAdminUser ? (
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-500 rounded-full border-2 border-background" title="Admin"></div>
-              ) : (
-                <AvatarFallback>{(userData?.username || 'U').substring(0, 2).toUpperCase()}</AvatarFallback>
-              )}
-            </Avatar>
+  const formattedDate = post.createdAt
+    ? post.createdAt.toDate().toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })
+    : 'Just now';
 
-            <div className='flex items-center gap-2'>
-              <p className='text-sm font-medium'>{userData?.username || 'Unknown'}</p>
+  const formattedTime = post.createdAt
+    ? post.createdAt.toDate().toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : '';
+
+  return (
+    <Card className="group relative flex flex-col rounded-2xl border border-border/40 bg-card/80 backdrop-blur-sm shadow-sm hover:shadow-lg hover:border-border/60 transition-all duration-300 ease-out overflow-hidden gap-0">
+      {/* Subtle gradient accent line at top */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-purple-500/60 via-pink-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+      {/* ── Header: avatar + name + date ── */}
+      <CardHeader className="px-5 pt-5 pb-3 gap-0">
+        <div className="flex items-center gap-3">
+          {/* Avatar with gradient ring */}
+          <div className="relative shrink-0">
+            <div className="absolute -inset-[2px] rounded-full bg-gradient-to-br from-purple-500 to-pink-500 opacity-60" />
+            <Avatar className="relative w-9 h-9 ring-2 ring-background">
+              <AvatarImage src={userData?.photoURL || ''} alt={userData?.username || 'User'} />
+              <AvatarFallback className="bg-gradient-to-br from-purple-600 to-pink-500 text-white text-xs font-bold">
+                {(userData?.username || 'U').substring(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+
+          {/* Name + timestamp */}
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-foreground truncate">
+                {userData?.username || 'Unknown'}
+              </span>
+              {isAdminUser && (
+                <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-white leading-none">
+                  Admin
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Clock className="w-3 h-3" />
+              <span>{formattedDate}</span>
+              {formattedTime && (
+                <>
+                  <span className="text-muted-foreground/40">·</span>
+                  <span>{formattedTime}</span>
+                </>
+              )}
             </div>
           </div>
-       
-        <Separator className='w-[2%]'/>
-        <CardTitle className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+        </div>
+      </CardHeader>
+
+      {/* ── Content ── */}
+      <CardContent className="px-5 pb-4 pt-0 flex-grow space-y-3">
+        {/* Title */}
+        <CardTitle className="text-lg md:text-xl font-bold tracking-tight text-foreground leading-snug">
           {post.title}
         </CardTitle>
-        
-        <CardDescription className="text-xs md:text-sm text-muted-foreground">
-          {post.createdAt ? post.createdAt.toDate().toLocaleString() : 'Just now'}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex-grow pt-1">
+
+        {/* Body text */}
+        <div
+          className="text-[15px] leading-relaxed text-foreground/85 break-words [&_p]:mb-1.5 [&_p:last-child]:mb-0"
+          dangerouslySetInnerHTML={{ __html: post.body }}
+        />
+
+        {/* Image */}
         {post.image && (
-          <div className="relative w-full">
+          <div className="relative w-full rounded-xl overflow-hidden border border-border/20 bg-muted/20">
             <Image
               src={post.image}
               alt={post.title}
               width={0}
               height={0}
               sizes="100vw"
-              className="w-full h-auto rounded-md"
+              className="w-full h-auto"
               style={{
-                maxHeight: '80vh',
-                objectFit: 'contain'
+                maxHeight: '70vh',
+                objectFit: 'contain',
               }}
             />
           </div>
         )}
-        <p
-          className="text-left break-words text-[18px] leading-relaxed font-normal mt-2"
-          dangerouslySetInnerHTML={{ __html: post.body }}
-        ></p>
       </CardContent>
-     
-      <Button variant="ghost" onClick={handleLikePost} className='text-left text-[16px] leading-relaxed font-normal hover:text-primary transition-colors mx-4 w-1/8 '>
-        <ThumbsUp className='inline-block w-8 h-8' />
-        <p>Like <span className=''>{post.like?? 0}</span></p>
-      </Button>
-      <CardFooter className="flex flex-col gap-2 pt-4 mt-3 border-t border-border/40">
-       {myPost && (
-        <Button variant="ghost" onClick={handleDeletePost} className='text-left text-[16px] leading-relaxed font-normal hover:text-primary transition-colors p-0'>
-          <Trash className='inline-block w-8 h-8'   />
-          Delete
-        </Button>
-      )}
-        <div className="space-y-2 w-full">
+
+      {/* ── Action bar ── */}
+      <Separator className="mx-5 w-auto opacity-40" />
+
+      <CardFooter className="px-3 py-2 gap-0">
+        <div className="flex items-center w-full">
+          {/* Like */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLikePost}
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-pink-500 hover:bg-pink-500/10 transition-colors rounded-lg px-3 h-9"
+          >
+            <Heart className="w-[18px] h-[18px]" />
+            <span className="text-sm font-medium">{post.like ?? 0}</span>
+          </Button>
+
+          {/* Replies Drawer */}
           <Drawer>
             <DrawerTrigger asChild>
-              <Button variant="ghost" className='text-left text-[16px] leading-relaxed font-normal hover:text-primary transition-colors p-0'>
-                <MessageCircleReply className='inline-block w-8 h-8' />
-                View Replies
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex items-center gap-1.5 text-muted-foreground hover:text-purple-500 hover:bg-purple-500/10 transition-colors rounded-lg px-3 h-9"
+              >
+                <MessageCircle className="w-[18px] h-[18px]" />
+                <span className="text-sm font-medium">{replies.length}</span>
               </Button>
-              
             </DrawerTrigger>
             <DrawerContent>
-              <DrawerHeader>
-                <DrawerTitle>Replies</DrawerTitle>
-                <DrawerDescription>View all replies for this post</DrawerDescription>
+              <DrawerHeader className="border-b border-border/30 pb-4">
+                <DrawerTitle className="text-lg">Replies</DrawerTitle>
+                <DrawerDescription className="text-sm text-muted-foreground">
+                  {replies.length} {replies.length === 1 ? 'reply' : 'replies'} to this post
+                </DrawerDescription>
               </DrawerHeader>
-              <div className="p-4 flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
-                <Textarea
-                  placeholder="Write a reply..."
-                  className="resize-none"
-                  value={replyText}
-                  onChange={e => setReplyText(e.target.value)}
-                />
-                <Button
-                  variant='default'
-                  className='md:mx-auto block w-1/4'
-                  onClick={handleSendReply}
-                  disabled={!replyText.trim()}
-                >
-                  <Send className='inline-block w-5 h-5 mr-2' />
-                  Send
-                </Button>
-                {/* {replies.map(reply => (
-                  <div key={reply.id} className="p-3 rounded-lg bg-muted/50">
-                    <p className="text-sm">{reply.text}</p>
-                  </div>
-                ))} */}
-                {replies.map((reply) => (
-                  <ReplyCard key={reply.id} reply={reply} />
-                ))}
-                
+              <div className="p-5 flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
+                {/* Reply input */}
+                <div className="flex flex-col gap-2.5">
+                  <Textarea
+                    placeholder="Write a reply..."
+                    className="resize-none min-h-[80px] rounded-xl border-border/50 focus:border-purple-500/50 transition-colors"
+                    value={replyText}
+                    onChange={e => setReplyText(e.target.value)}
+                  />
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="self-end rounded-lg px-5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-sm"
+                    onClick={handleSendReply}
+                    disabled={!replyText.trim()}
+                  >
+                    <Send className="w-4 h-4 mr-1.5" />
+                    Reply
+                  </Button>
+                </div>
+
+                {replies.length > 0 && <Separator className="opacity-30" />}
+
+                {/* Reply list */}
+                <div className="flex flex-col gap-2.5">
+                  {replies.map((reply) => (
+                    <ReplyCard key={reply.id} reply={reply} />
+                  ))}
+                </div>
+
+                {replies.length === 0 && (
+                  <p className="text-center text-sm text-muted-foreground py-6">
+                    No replies yet. Be the first to reply!
+                  </p>
+                )}
               </div>
             </DrawerContent>
           </Drawer>
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Delete (own post only) */}
+          {myPost && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDeletePost}
+              className="flex items-center gap-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors rounded-lg px-3 h-9"
+            >
+              <Trash2 className="w-[18px] h-[18px]" />
+              <span className="text-sm font-medium hidden sm:inline">Delete</span>
+            </Button>
+          )}
         </div>
       </CardFooter>
     </Card>
@@ -201,32 +260,38 @@ export function PostCard({ post }: { post: Post }) {
 
 function ReplyCard({ reply }: { reply: Reply }) {
   const replyUserData = useUserData(reply.userId);
+
+  const formattedReplyDate = reply.createdAt
+    ? reply.createdAt.toDate().toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      })
+    : 'Just now';
+
   return (
-    <div className="group flex items-start gap-3 p-3 rounded-xl bg-muted/30 border border-border/20 hover:bg-muted/50 hover:border-border/40 transition-all duration-200">
-   
- 
-           <Avatar className="w-9 h-9 ring-2 ring-purple-500/20 shrink-0">
-        <AvatarImage src={replyUserData?.photoURL || ''} alt={replyUserData?.username || 'User'} />
-    
-        <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-xs font-semibold">
-          {(replyUserData?.username || 'U').substring(0, 2).toUpperCase()}
-        </AvatarFallback>
-      </Avatar>
- 
-     
-      
-      
-       
-     
-      <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-        <div className="flex items-center justify-between">
+    <div className="group/reply flex items-start gap-3 p-3.5 rounded-xl bg-muted/25 border border-border/15 hover:bg-muted/45 hover:border-border/30 transition-all duration-200">
+      {/* Avatar */}
+      <div className="relative shrink-0">
+        <div className="absolute -inset-[1.5px] rounded-full bg-gradient-to-br from-purple-500/40 to-pink-500/40" />
+        <Avatar className="relative w-8 h-8 ring-1 ring-background">
+          <AvatarImage src={replyUserData?.photoURL || ''} alt={replyUserData?.username || 'User'} />
+          <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-[10px] font-bold">
+            {(replyUserData?.username || 'U').substring(0, 2).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+      </div>
+
+      {/* Content */}
+      <div className="flex flex-col gap-1 min-w-0 flex-1">
+        <div className="flex items-center gap-2">
           <span className="text-sm font-semibold text-foreground/90 truncate">
             {replyUserData?.username || 'Anonymous'}
           </span>
-<span className="text-xs text-muted-foreground whitespace-nowrap">{reply.createdAt?.toDate().toLocaleString() || 'Just now'}</span>
+          <span className="text-[11px] text-muted-foreground/60">
+            {formattedReplyDate}
+          </span>
         </div>
-        
-        <p className="text-sm text-foreground/75 leading-relaxed break-words">
+        <p className="text-sm text-foreground/70 leading-relaxed break-words">
           {reply.text}
         </p>
       </div>
@@ -239,26 +304,31 @@ function ReplyCard({ reply }: { reply: Reply }) {
 
 function PostSkeleton() {
   return (
-    <Card className="flex flex-col w-full max-w-3xl mx-auto rounded-2xl border border-border/30 bg-white/5 shadow-sm">
-      <CardHeader className="pb-2">
-        <div className="flex flex-row items-center gap-2">
-          <Skeleton className="w-8 h-8 rounded-full" />
-          <Skeleton className="h-4 w-24" />
+    <Card className="flex flex-col rounded-2xl border border-border/30 bg-card/60 backdrop-blur-sm shadow-sm overflow-hidden">
+      <CardHeader className="px-5 pt-5 pb-3">
+        <div className="flex items-center gap-3">
+          <Skeleton className="w-9 h-9 rounded-full" />
+          <div className="flex flex-col gap-1.5">
+            <Skeleton className="h-3.5 w-28" />
+            <Skeleton className="h-3 w-20" />
+          </div>
         </div>
-        <Separator className="w-[2%]" />
-        <Skeleton className="h-8 w-3/4 mt-2" />
-        <Skeleton className="h-4 w-32 mt-2" />
       </CardHeader>
-      <CardContent className="flex-grow pt-1">
-        <Skeleton className="w-full h-48 mb-4" />
+      <CardContent className="px-5 pb-4 pt-0 space-y-3">
+        <Skeleton className="h-6 w-3/4" />
         <div className="space-y-2">
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-5/6" />
           <Skeleton className="h-4 w-4/6" />
         </div>
+        <Skeleton className="w-full h-48 rounded-xl" />
       </CardContent>
-      <CardFooter className="flex flex-col gap-2 pt-4 mt-3 border-t border-border/40">
-        <Skeleton className="h-4 w-32" />
+      <Separator className="mx-5 w-auto opacity-30" />
+      <CardFooter className="px-5 py-3">
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-8 w-16 rounded-lg" />
+          <Skeleton className="h-8 w-16 rounded-lg" />
+        </div>
       </CardFooter>
     </Card>
   );
@@ -268,16 +338,15 @@ function PostSkeleton() {
 // ─── Main Export ─────────────────────────────────────────
 
 export default function CardLoad() {
-
   const { posts, loading } = usePosts();
 
   if (loading) {
     return (
-      <div className="px-4">
-        <h1 className="mt-20 text-center text-4xl md:text-5xl font-extrabold tracking-tight mb-12 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+      <div className="px-4 max-w-2xl mx-auto">
+        <h1 className="mt-20 text-center text-4xl md:text-5xl font-extrabold tracking-tight mb-10 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
           Latest Posts
         </h1>
-        <div className="space-y-6">
+        <div className="space-y-5">
           {[1, 2, 3].map((i) => (
             <PostSkeleton key={i} />
           ))}
@@ -287,19 +356,23 @@ export default function CardLoad() {
   }
 
   return (
-    <div className="px-4">
-      <h1 className="mt-20 text-center text-4xl md:text-5xl font-extrabold tracking-tight mb-12 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+    <div className="px-4 max-w-2xl mx-auto">
+      <h1 className="mt-20 text-center text-4xl md:text-5xl font-extrabold tracking-tight mb-10 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
         Latest Posts
       </h1>
-      <div className="space-y-6">
+      <div className="space-y-5">
         {posts.length > 0 ? (
           posts.map(post => <PostCard key={post.id} post={post} />)
         ) : (
-          <p className="text-center text-lg text-muted-foreground">
-            No posts available yet.
-          </p>
+          <div className="flex flex-col items-center gap-3 py-16">
+            <MessageCircle className="w-12 h-12 text-muted-foreground/30" />
+            <p className="text-center text-lg text-muted-foreground">
+              No posts available yet.
+            </p>
+          </div>
         )}
       </div>
     </div>
   );
 }
+

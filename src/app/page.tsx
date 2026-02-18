@@ -2,7 +2,6 @@
 
 // import { TabsDemo } from "../components/tab";
 import HeroPage from "./home/heropage";
-// import SecHero from "./home/secHero";
 import CardLoad from "./home/cardload";
 
 export default function Home() {

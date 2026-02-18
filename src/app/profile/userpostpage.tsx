@@ -6,7 +6,7 @@ import { PostCard } from "../home/cardload"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useUserPosts } from "./userpost"
 
-export default function UserPost() {
+export function UserPost() {
     return (
         <div className="w-full">
             <h1 className="text-2xl font-bold mb-4 px-4">Your Posts</h1>

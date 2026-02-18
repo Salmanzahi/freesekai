@@ -22,7 +22,7 @@ import { auth } from "@/lib/firebase";
 import { fetchUsernameByUid, updateUsername as updateusername, validateUsername} from "./profilehandling";
 import { getProfileImageUrl } from "./profilehandling"
 import { Separator } from "@/components/ui/separator"
-import UserPost from "./userpostpage";
+import { UserPost } from "./userpostpage";
 import { useUserPosts } from "./userpost";
 
 export default function Profile() {
@@ -78,8 +78,8 @@ export default function Profile() {
     }, [authUser]);
 
     return (
-        <div className=" min-h-screen items-center justify-center align-middle p-4 ">
-            <Card className="mt-24 bg-transparent border-none shadow-none">
+        <div className="min-h-screen items-center justify-center align-middle pt-12 sm:pt-24 px-2 sm:px-4">
+            <Card className="bg-transparent border-none shadow-none">
                 <CardHeader className=''>
                     <CardTitle className="text-left text-xl px-4">Ur Profile</CardTitle>
              
@@ -104,8 +104,8 @@ export default function Profile() {
                                 </div>
                               ) : (
                                 <>
-                                  <p className="text-lg font-semibold">{username ?? authUser?.displayName ?? "Unknown User"}</p>
-                                  <p className="text-sm text-muted-foreground">{authUser?.email ?? "No Email"}</p>
+                                  <p className="text-sm md:text-xl   font-semibold">{username ?? authUser?.displayName ?? "Unknown User"}</p>
+                                  <p className="text-xs md:text-sm text-muted-foreground">{authUser?.email ?? "No Email"}</p>
                                 </>
                               )}
                            </div>
