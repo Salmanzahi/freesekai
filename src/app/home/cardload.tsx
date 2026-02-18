@@ -1,18 +1,19 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import Image from 'next/image';
-import { MessageCircleReply, Send, Trash } from 'lucide-react';
+import { MessageCircleReply, Send, ThumbsUp, Trash } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { deletePost } from './cardloadLogic';
+import { likeHandling } from './likeHandling';
 // import authModule from '@/lib/auth';
 import {
   type Post,
@@ -34,14 +35,22 @@ export function PostCard({ post }: { post: Post }) {
   const isAdminUser = useAdminStatus(post.userId);
   const [replyText, setReplyText] = useState("");
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+  // useEffect(() => {
+  //   const unsubscribe = onAuthStateChanged(auth, (user) => {
+  //     if (user) {
+  //       setMyPost(user.uid === post.userId);
+  //     }
+  //   });
+  //   console.log('onAuthState triggred')
+  //   return () => unsubscribe();
+  // }, [post.userId]);
+
+
+  onAuthStateChanged(auth, (user) => {
       if (user) {
         setMyPost(user.uid === post.userId);
       }
     });
-    return () => unsubscribe();
-  }, [post.userId]);
   // const replyUserData = useUserData
 
   const handleSendReply = async () => {
@@ -53,6 +62,20 @@ export function PostCard({ post }: { post: Post }) {
       alert("Please login to reply");
     }
   };
+
+  const handleLikePost = async () => {
+    const user = auth.currentUser
+    if (user) {
+      await likeHandling(post.id, user.uid);
+      alert("Post liked successfully");
+      return true;
+    } else {
+      alert("Please login to like a post");
+      return false;
+    }
+  };
+
+
 
   const handleDeletePost = async () => {
     const user = auth.currentUser
@@ -115,13 +138,18 @@ export function PostCard({ post }: { post: Post }) {
           dangerouslySetInnerHTML={{ __html: post.body }}
         ></p>
       </CardContent>
-      {myPost && (
+     
+      <Button variant="ghost" onClick={handleLikePost} className='text-left text-[16px] leading-relaxed font-normal hover:text-primary transition-colors mx-4 w-1/8 '>
+        <ThumbsUp className='inline-block w-8 h-8' />
+        <p>Like <span className=''>{post.like?? 0}</span></p>
+      </Button>
+      <CardFooter className="flex flex-col gap-2 pt-4 mt-3 border-t border-border/40">
+       {myPost && (
         <Button variant="ghost" onClick={handleDeletePost} className='text-left text-[16px] leading-relaxed font-normal hover:text-primary transition-colors p-0'>
           <Trash className='inline-block w-8 h-8'   />
           Delete
         </Button>
       )}
-      <CardFooter className="flex flex-col gap-2 pt-4 mt-3 border-t border-border/40">
         <div className="space-y-2 w-full">
           <Drawer>
             <DrawerTrigger asChild>
@@ -160,6 +188,7 @@ export function PostCard({ post }: { post: Post }) {
                 {replies.map((reply) => (
                   <ReplyCard key={reply.id} reply={reply} />
                 ))}
+                
               </div>
             </DrawerContent>
           </Drawer>
@@ -239,6 +268,7 @@ function PostSkeleton() {
 // ─── Main Export ─────────────────────────────────────────
 
 export default function CardLoad() {
+
   const { posts, loading } = usePosts();
 
   if (loading) {

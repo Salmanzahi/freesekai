@@ -15,6 +15,7 @@ export interface Post {
   spotifyTrack: string;
   title: string;
   userId: string;
+  like?: number;
 }
 
 export interface Reply {
@@ -43,12 +44,13 @@ export function useAuthStatus() {
 export function usePosts() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+ 
 
   useEffect(() => {
     setLoading(true);
     const postsRef = collection(firedb, 'posts');
     const q = query(postsRef, orderBy('createdAt', 'desc'));
-
+   
     const triggerncleaup = onSnapshot(q, (snapshot) => {
       const fetchedPosts = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -59,11 +61,11 @@ export function usePosts() {
     });
 
     return () => triggerncleaup();
-    
   }, []);
 
   return { posts, loading };
 }
+
 
 export function useReplies(postId: string) {
   const [replies, setReplies] = useState<Reply[]>([]);
@@ -147,7 +149,7 @@ export async function deletePost(postId: string, userId: string) {
     console.log('success 1')
     await deleteDoc(doc(userRed, postId));
     console.log('success 2')
-    
+
     return true;
   } catch (e) {
     console.log(e);
