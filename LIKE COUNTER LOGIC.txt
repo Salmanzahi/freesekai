@@ -1,0 +1,27 @@
+LIKE COUNTER LOGIC
+
+
+load post
+- button like
+
+if like pressed:
+check User state (true or false) on likedpost properties (user/{user_uid}/liked_post/{post_id})
+- checkUserLikeState(post_id, user_id) >> return true / false
+goes to like handling(post_id)
+
+
+
+
+function likeHandling(post_id, user_uid)
+	run checkUserLikeState()
+if true:
+	fetch (post/{post_id}/like) as ref
+remove the collection ( {user_uid}/ )
+
+
+else:
+fetch (post/{post_id}/like) as ref
+add at ref >> {user_uid}/
+
+
+// at render adjust buttons styling colour, and calc the length of like user
