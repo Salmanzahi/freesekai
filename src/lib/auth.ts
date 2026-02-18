@@ -1,11 +1,14 @@
-import { auth } from './firebase';
-import type { User } from 'firebase/auth';
+// import { auth } from './firebase';
+import { User, getAuth } from 'firebase/auth';
 
 type Listener = (user: User | null) => void;
 
 let currentUser: User | null = null;
 let listeners: Listener[] = [];
 let initialized = false;
+const auth = getAuth();
+
+
 
 function notify(user: User | null) {
   currentUser = user;

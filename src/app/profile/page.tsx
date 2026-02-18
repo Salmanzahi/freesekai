@@ -1,8 +1,6 @@
 "use client"
 
 import { useEffect } from "react"
-// import { auth } from "@/lib/firebase"
-
 import { onAuthStateChanged } from "firebase/auth"
 import {
   Card,
@@ -10,19 +8,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { PenSquare } from "lucide-react"
 import { useState } from "react";
+import { ProfilePicEditModal } from "@/components/profile/profilepicedit";
 import type { User } from "firebase/auth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { auth } from "@/lib/firebase";
-import { fetchUsernameByUid, updateUsername as updateusername, validateUsername, changeImageProfile} from "./profilehandling";
+import { fetchUsernameByUid, updateUsername as updateusername, validateUsername} from "./profilehandling";
 import { getProfileImageUrl } from "./profilehandling"
+import { Separator } from "@/components/ui/separator"
+import UserPost from "./userpostpage";
+import { useUserPosts } from "./userpost";
 
 export default function Profile() {
  
@@ -34,6 +35,7 @@ export default function Profile() {
   const [username, setUsername] = useState<string | null>(null);
   const [usernameLoading, setUsernameLoading] = useState(true);
   const [profileImg, setProfileImg] = useState<string | null>(null);
+
   const [ usernameError, setUsernameError ] = useState<boolean>(false);
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -41,6 +43,9 @@ export default function Profile() {
         });
         return () => unsubscribe();
     }, []);
+
+    const { postsCount } = useUserPosts(authUser?.uid ?? "");
+    
     useEffect(() => {
       const fetchUserData = async (u: User) => {
         setUsernameLoading(true);
@@ -73,34 +78,41 @@ export default function Profile() {
     }, [authUser]);
 
     return (
-        <div className=" min-h-screen items-center justify-center align-middle p-4  ">
-            <Card className="mt-24">
-                <CardHeader>
-                    <CardTitle className="text-center text-xl">Profile Menu</CardTitle>
-                    {/* <CardDescription>Card Description</CardDescription> */}
-                    {/* <CardAction>Card Action</CardAction> */}
-                    <div className="relative mx-auto my-4 h-24 w-24">
-                        <Avatar className="h-24 w-24">
-                            <AvatarImage src={profileImg ?? auth.currentUser?.photoURL ?? undefined} />
-                            <AvatarFallback>
-                                {username?.charAt(0) ?? auth.currentUser?.displayName?.charAt(0) ?? "U"}
-                            </AvatarFallback>
-                        </Avatar>
-            <span className="absolute bottom-1 right-1 rounded-full bg-white p-1 shadow hover:bg-gray-100 cursor-pointer active:bg-gray-200" onClick={() => setPicModalOpen(true)}  >
-                            <PenSquare className="h-5 w-5 text-gray-700" />
-                        </span>
-                    </div>
-                    {authUser === undefined || usernameLoading ? (
-                      <div className="space-y-2">
-                        <Skeleton className="h-6 w-48 mx-auto" />
-                        <Skeleton className="h-4 w-64 mx-auto" />
-                      </div>
-                    ) : (
-                      <>
-                        <p className="text-center text-lg font-semibold">{username ?? authUser?.displayName ?? "Unknown User"}</p>
-                        <p className="text-center text-sm text-muted-foreground">{authUser?.email ?? "No Email"}</p>
-                      </>
-                    )}
+        <div className=" min-h-screen items-center justify-center align-middle p-4 ">
+            <Card className="mt-24 bg-transparent border-none shadow-none">
+                <CardHeader className=''>
+                    <CardTitle className="text-left text-xl px-4">Ur Profile</CardTitle>
+             
+                       <div className="my-4 w-full flex flex-row justify-between items-center px-4">
+                          <div className="relative">
+                             <Avatar className="h-24 w-24 items-center justify-center">
+                                <AvatarImage src={profileImg ?? auth.currentUser?.photoURL ?? undefined} />
+                                <AvatarFallback>
+                                    {username?.charAt(0) ?? auth.currentUser?.displayName?.charAt(0) ?? "U"}
+                                </AvatarFallback>
+                            </Avatar>
+                            <span className="absolute bottom-0 right-0 rounded-full bg-white p-1 shadow hover:bg-gray-100 cursor-pointer active:bg-gray-200" onClick={() => setPicModalOpen(true)}>
+                                <PenSquare className="h-4 w-4 text-gray-700" />
+                            </span>
+                          </div>
+                          
+                          <div className="text-right">
+                             {authUser === undefined || usernameLoading ? (
+                                <div className="space-y-2 flex flex-col items-end">
+                                  <Skeleton className="h-6 w-48" />
+                                  <Skeleton className="h-4 w-64" />
+                                </div>
+                              ) : (
+                                <>
+                                  <p className="text-lg font-semibold">{username ?? authUser?.displayName ?? "Unknown User"}</p>
+                                  <p className="text-sm text-muted-foreground">{authUser?.email ?? "No Email"}</p>
+                                </>
+                              )}
+                           </div>
+                        </div>
+                
+                 
+                   
                     {showAlert && (
                       <div className="fixed top-4 right-4 w-full max-w-sm z-50 transition-all duration-500 ease-in-out transform animate-fade-in-up">
                       <Alert>
@@ -121,8 +133,27 @@ export default function Profile() {
                       `}</style>
                       </div>
                     )}
+                     <div className="flex items-center justify-around w-full mt-6 mb-2">
+                        <div className="flex flex-col items-center hover:bg-muted/50 p-2 rounded-lg cursor-pointer transition-colors flex-1">
+                           <span className="font-bold text-xl">0</span>
+                           <span className="text-xs text-muted-foreground uppercase tracking-wider">Following</span>
+                        </div>
+                        <Separator orientation="vertical" className="h-8 bg-border/60" />
+                        <div className="flex flex-col items-center hover:bg-muted/50 p-2 rounded-lg cursor-pointer transition-colors flex-1">
+                           <span className="font-bold text-xl">0</span>
+                           <span className="text-xs text-muted-foreground uppercase tracking-wider">Followers</span>
+                        </div>
+                         <Separator orientation="vertical" className="h-8 bg-border/60" />
+                        <div className="flex flex-col items-center hover:bg-muted/50 p-2 rounded-lg cursor-pointer transition-colors flex-1">
+                           <span className="font-bold text-xl">{postsCount}</span>
+                           <span className="text-xs text-muted-foreground uppercase tracking-wider">Posts</span>
+                        </div>
+                     </div>
+                     <Separator className="mt-2" />
+                    
                 </CardHeader>
-                <CardContent>
+               
+                <CardContent className="ml-4">
                   <p>Username</p>
                     <div className="flex items-center gap-2">
                     <Input
@@ -211,66 +242,11 @@ export default function Profile() {
                 </CardFooter> */}
             </Card>
       <ProfilePicEditModal open={picModalOpen} onClose={() => setPicModalOpen(false)} />
+         <UserPost />
         </div>
+       
+      
     )
 }
 
 
-function ProfilePicEditModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-
-  const [ authUser, setAuthUser] = useState<User | null | undefined>(undefined);
-
-  useEffect(() => {
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-          setAuthUser(user);
-      });
-      return () => unsubscribe();
-  }, []);
-
-  return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Edit Profile Picture</DialogTitle>
-        </DialogHeader>
-        <div className="flex flex-col items-center gap-4 py-4">
-          {/* Placeholder for image upload */}
-          <label htmlFor="profile-pic-upload" className="mb-1 text-sm font-medium">
-            Upload new profile picture
-          </label>
-          <Input
-            id="profile-pic-upload"
-            type="file"
-            accept="image/*"
-            className="mb-2"
-            title="Choose a new profile picture"
-          />
-          <span className="text-sm text-muted-foreground">Choose a new profile picture.</span>
-        </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="secondary">Cancel</Button>
-               
-          </DialogClose>
-       <Button
-            onClick={async () => {
-              if (authUser) {
-                // Grab the file input value
-                const input = document.getElementById("profile-pic-upload") as HTMLInputElement | null;
-                const profilePicFile = input?.files?.[0];
-                if (!profilePicFile) return;
-                await changeImageProfile(authUser.uid, profilePicFile);
-              }
-            }}
-          >Save</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// check user is admin or not
-
-
-
-// username update is handled in ./profilehandling

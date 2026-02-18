@@ -14,14 +14,10 @@ import { Eye, EyeOff } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { registerUserWithEmailAndPassword } from "@/app/register/register"
-// import { Alert } from "@/components/ui/alert"
+import { registerUserWithEmailAndPassword, registerWithGoogle } from "@/app/register/register"
 import Link from "next/link"
-
-
 import { auth } from "@/lib/firebase"
-// onAuthStateChanged not needed here — checkAuthUser handles it
-import { checkAuthUser } from "@/lib/regisauth"
+import { isAuth } from "@/lib/isauth"
 
 //  export async function checkAuthUser() {
 //   return new Promise((resolve, reject) => {
@@ -63,12 +59,8 @@ export default function Register() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      try {
-        await checkAuthUser();
-        setIsAuthUser(true);
-      } catch {
-        setIsAuthUser(false);
-      }
+      const authenticated = await isAuth();
+      setIsAuthUser(authenticated);
     };
     checkAuth();
   }, []);
@@ -161,7 +153,13 @@ export default function Register() {
               <Button type="submit" className="w-full">
                 Sign Up
               </Button>
-              <Button variant="outline" className="w-full">
+              <Button type="button" variant="outline" className="w-full" onClick={async () => {
+                try {
+                  await registerWithGoogle();
+                } catch {
+                   setError("Google Sign-In failed");
+                }
+              }}>
                 Sign Up with Google
               </Button>
             </CardFooter>

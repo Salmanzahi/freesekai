@@ -22,10 +22,12 @@ import { ModeToggle } from '@/components/mode-toggle';
 import { signOut } from "firebase/auth";
 import { auth } from '@/lib/firebase';
 import { checkAuthUser } from '@/lib/regisauth';
+import { useRouter } from 'next/navigation';
 
 
 
 const Nav = () => {
+  const router = useRouter();
   const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [visible, setVisible] = useState(true);
   const [isTransparent, setIsTransparent] = useState(true);
@@ -128,6 +130,22 @@ const Nav = () => {
               <span>Discord</span>
             </a>
           </Button>
+           <Button 
+            asChild 
+            variant="ghost" 
+            size="sm"
+            className="nav-link-hover hover:bg-accent/50 transition-all duration-200 hover:-translate-y-0.5"
+          >
+            <a 
+              href='./mypost' 
+              target='_blank' 
+              rel='noopener noreferrer'
+              className="flex items-center space-x-1 px-3 py-2"
+            >
+              <span>Discord</span>
+            </a>
+          </Button>
+          
         </div>
 
         <div className="flex items-center space-x-3 ml-4 pl-4 border-l border-border/50">
@@ -153,7 +171,7 @@ const Nav = () => {
                 onClick={async () => {
                   await signOut(auth);
                   setIsAuthUser(false)
-
+                  router.push("/");
                 }}
                 >
                 Sign Out

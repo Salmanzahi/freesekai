@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-
 import { Send } from 'lucide-react';
 import { Switch
  } from '@/components/ui/switch';
@@ -16,6 +15,7 @@ import { useState, useEffect} from 'react';
 import { isAuth } from '@/lib/isauth';
 import { auth } from '@/lib/firebase';
 import { handlePost } from './createhandling';
+import { toast } from "sonner";
 // const authCheck = isAuthUser();
 
 
@@ -53,6 +53,9 @@ function CreatePostForm() {
     const [showProfile,setShowProfile] = useState<boolean>(false);
     const [spotifyTrack,setSpotifyTrack] = useState<string>("");
     const [userId,setUserId] = useState<string>("");
+    const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
+
+
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -64,7 +67,31 @@ function CreatePostForm() {
     }, []);
 
       const handleSubmit = async () => {
-    await handlePost(title,content,image,showProfile,spotifyTrack,userId)
+    setBtnDisabled(true);
+    // setAlertInfo(null); // Clear previous alerts
+    const pushPost = await handlePost(title,content,image,showProfile,spotifyTrack,userId);
+    console.log("handlePost result:", pushPost);
+    
+    if(pushPost) {
+       toast.success("Post created successfully!", {
+           description: "Your post has been shared with the community."
+       });
+       
+       // cleanup 
+       setBtnDisabled(false);
+       setTitle("");
+       setContent("");
+       setImage(null);
+       setShowProfile(false);
+       setSpotifyTrack("");
+    } else {
+        toast.error("Failed to create post!", {
+            description: "Please try again later."
+        });
+        
+        // cleanup 
+        setBtnDisabled(false);
+    }
 }   
     return (
         <div className="space-y-6">
@@ -129,7 +156,7 @@ function CreatePostForm() {
             <div className="flex items-center justify-between gap-4">
                 {/* <div className="text-sm text-muted-foreground">By posting you agree to the community guidelines.</div> */}
                 <div className="flex items-center gap-2 w-full">
-                    <Button  type='submit'className="flex items-center gap-2 w-full" onClick={handleSubmit}>
+                    <Button  type='submit'className="flex items-center gap-2 w-full" onClick={handleSubmit} disabled={btnDisabled} >
                         <Send size={16} />
                         Post
                     </Button>
