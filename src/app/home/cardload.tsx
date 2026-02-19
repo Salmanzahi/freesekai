@@ -10,10 +10,11 @@ import Image from 'next/image';
 import { Heart, MessageCircle, Send, Trash2, Clock } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { deletePost } from './cardloadLogic';
-import { likeHandling } from './likeHandling';
+import { likeHandling, checkUserLikeState } from './likeHandling';
 import {
   type Post,
   usePosts,
@@ -23,16 +24,19 @@ import {
   newReplies,
   type Reply
 } from './cardloadLogic';
+import { useEffect } from 'react';
 
 
-export function PostCard({ post }: { post: Post }) {
+export  function PostCard({ post }: { post: Post }) {
   const replies = useReplies(post.id);
   const [myPost, setMyPost] = useState(false);
   const userData = useUserData(post.userId);
   const isAdminUser = useAdminStatus(post.userId);
   const [replyText, setReplyText] = useState("");
+  const [liked, setLiked] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, (user) => {
     if (user) {
       setMyPost(user.uid === post.userId);
     }
@@ -59,10 +63,22 @@ export function PostCard({ post }: { post: Post }) {
     }
   };
 
+  useEffect(() => {
+    const user = auth.currentUser?.uid
+    if (user){
+      checkUserLikeState(post.id, user).then((state) => {
+        setLiked(state);
+      });
+    }
+
+  }, [post]);
+
+
   const handleDeletePost = async () => {
     const user = auth.currentUser;
     if (user) {
       await deletePost(post.id, user.uid);
+      setIsDeleteDialogOpen(false);
       return true;
     } else {
       alert("Please login to delete a post");
@@ -133,13 +149,13 @@ export function PostCard({ post }: { post: Post }) {
       {/* ── Content ── */}
       <CardContent className="px-5 pb-4 pt-0 flex-grow space-y-3">
         {/* Title */}
-        <CardTitle className="text-lg md:text-xl font-bold tracking-tight text-foreground leading-snug">
+        <CardTitle className="text-lg text-left md:text-xl font-bold tracking-tight text-foreground leading-snug">
           {post.title}
         </CardTitle>
 
         {/* Body text */}
         <div
-          className="text-[15px] leading-relaxed text-foreground/85 break-words [&_p]:mb-1.5 [&_p:last-child]:mb-0"
+          className="text-[15px]   text-left font-normal leading-relaxed break-words [&_p]:mb-1.5 [&_p:last-child]:mb-0"
           dangerouslySetInnerHTML={{ __html: post.body }}
         />
 
@@ -174,7 +190,11 @@ export function PostCard({ post }: { post: Post }) {
             onClick={handleLikePost}
             className="flex items-center gap-1.5 text-muted-foreground hover:text-pink-500 hover:bg-pink-500/10 transition-colors rounded-lg px-3 h-9"
           >
-            <Heart className="w-[18px] h-[18px]" />
+            {liked ? (
+              <Heart className="w-[18px] h-[18px] text-pink-500" />
+            ) : (
+              <Heart className="w-[18px] h-[18px]" />
+            )}
             <span className="text-sm font-medium">{post.like ?? 0}</span>
           </Button>
 
@@ -241,15 +261,34 @@ export function PostCard({ post }: { post: Post }) {
 
           {/* Delete (own post only) */}
           {myPost && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleDeletePost}
-              className="flex items-center gap-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors rounded-lg px-3 h-9"
-            >
-              <Trash2 className="w-[18px] h-[18px]" />
-              <span className="text-sm font-medium hidden sm:inline">Delete</span>
-            </Button>
+            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors rounded-lg px-3 h-9"
+                >
+                  <Trash2 className="w-[18px] h-[18px]" />
+                  <span className="text-sm font-medium hidden sm:inline">Delete</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Delete Post?</DialogTitle>
+                  <DialogDescription>
+                    This action cannot be undone. This will permanently delete your post.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="gap-2 sm:gap-2">
+                  <DialogClose asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </DialogClose>
+                  <Button variant="destructive" onClick={handleDeletePost}>
+                    Delete
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           )}
         </div>
       </CardFooter>
@@ -375,4 +414,3 @@ export default function CardLoad() {
     </div>
   );
 }
-

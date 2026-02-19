@@ -20,6 +20,16 @@ import { toast } from "sonner";
 
 
 export default function CreatePage(){
+    
+    return (
+        <div className="flex flex-col items-center justify-center mt-16 md:w-3/4 md:mx-auto">
+           <CreateCard  />
+        </div>
+    )
+}
+
+
+ export  function CreateCard(){
     const [authCheck, setAuthCheck] = useState<boolean>();
 
 useEffect(() => {
@@ -29,10 +39,8 @@ useEffect(() => {
     };
     checkAuth();
 }, []);
-
-    return (
-        <div className="container flex flex-col items-center justify-center p-4 mx-auto">
-            <Card className="w-full max-w-3xl mt-24">
+return (
+ <Card className='bg-transparent border-none w-full max-w-full shadow-none'>
                 <CardHeader>
                     <CardTitle>Create New Post {authCheck ? " (Authenticated)" : "[Not Logged In]"}</CardTitle>
                     <CardDescription>Share your thoughts with the community</CardDescription>
@@ -41,8 +49,7 @@ useEffect(() => {
                     <CreatePostForm />
                 </CardContent>
             </Card>
-        </div>
-    )
+)
 }
 function CreatePostForm() {
 

@@ -6,19 +6,26 @@ import Link from "next/link";
 import { isAuth } from "@/lib/isauth";
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
+// import { Skeleton } from "@/components/ui/skeleton";
 import {RoomList} from "./roomlist";
 import { handleCreate, handleJoin } from "./roomHandling";
+import { auth } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
 
 function cleanForm(setRoomName: (value: string) => void, setKeyAccess: (value: string) => void) {
     setRoomName("");
     setKeyAccess("");
 }
 export default function Room() {
+    const router = useRouter();
     const [isAuthUser, setIsAuthUser] = useState(false);
     const [roomName, setRoomName] = useState("");
     const [keyAccess, setKeyAccess] = useState("");
     const [loading, setLoading] = useState(true);
+    const[openDialog, setOpenDialog] = useState({status: false, message: ''});
+    const[userId, setUserId] = useState('');
     useEffect(() => {
         const checkAuth = async () => {
             const authenticated = await isAuth();
@@ -30,17 +37,38 @@ export default function Room() {
         setIsAuthUser(false);
        }
     }, []);
+   
+       useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            if (user) {
+                setUserId(user.uid);
+            } else {
+                router.push('/');
+            }
+        });
+        return () => unsubscribe();
+       }, [router]);
+   
+    
     const handleJoinRoom =  async () => {
         console.log('handleJoinRoom Triggered')
         console.log(roomName, keyAccess);
-        await handleJoin(roomName, keyAccess);
-        alert("Room found !")
-         cleanForm(setRoomName, setKeyAccess);
+        const handle = await handleJoin(roomName, keyAccess, userId);
+        if (handle.status){
+            console.log('open dialog')
+            setOpenDialog({status: true, message: handle.message});
+
+        } else {
+            console.log('close dialog')
+            setOpenDialog({status: true, message: handle.message});
+        }
+        
+
     }
     const handleCreateRoom = async () => {
         console.log('handleCreateRoom Triggered')
         console.log(roomName, keyAccess);
-        await handleCreate(roomName, keyAccess);
+        await handleCreate(roomName, keyAccess, userId);
         alert("Room created successfully")
         cleanForm(setRoomName, setKeyAccess);
     }
@@ -52,7 +80,7 @@ export default function Room() {
                             Room Page
                         </CardTitle>
                         <CardDescription>
-                            Enter your room ID to join the room
+                            Enter your room ID to join the room {userId}
                         </CardDescription>
                         <CardAction>
                             <Button variant="link">{!isAuthUser && <Link href="/login">Sign In</Link>}
@@ -96,6 +124,24 @@ export default function Room() {
                         </form>
                     </CardContent>
                 </Card>
+                <Dialog open={openDialog.status} onOpenChange={() => setOpenDialog({status: false, message: ''})}>
+                    <DialogContent>
+                        <DialogHeader className="mb-4">
+                            <DialogTitle className="text-center">{openDialog.message}</DialogTitle>
+                            
+                        </DialogHeader>
+                        <DialogFooter>
+
+                                <Button variant="ghost" onClick={() => setOpenDialog({status: false, message: ''})}>
+                                    Close
+                                </Button>
+                                <Button variant="default" onClick={() => setOpenDialog({status: false, message: ''})}>
+                                    Join Room
+                                </Button>
+                          
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
                 <div className="mt-4">
                     <RoomList />
                 </div>

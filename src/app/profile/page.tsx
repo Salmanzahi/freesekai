@@ -15,6 +15,7 @@ import { useState } from "react";
 import { ProfilePicEditModal } from "@/components/profile/profilepicedit";
 import type { User } from "firebase/auth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogTrigger } from "@/components/ui/dialog";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -24,6 +25,8 @@ import { getProfileImageUrl } from "./profilehandling"
 import { Separator } from "@/components/ui/separator"
 import { UserPost } from "./userpostpage";
 import { useUserPosts } from "./userpost";
+import { CreateCard } from "../create/page"
+
 
 export default function Profile() {
  
@@ -153,9 +156,10 @@ export default function Profile() {
                     
                 </CardHeader>
                
-                <CardContent className="ml-4">
-                  <p>Username</p>
-                    <div className="flex items-center gap-2">
+                <CardContent className="p-4">
+                  <p className="text-sm ml-3 my-2">Username</p>
+                    <div className="flex items-center gap-2 w-full ">
+                      <div></div>
                     <Input
                       placeholder="Enter your new username"
                       readOnly
@@ -235,8 +239,24 @@ export default function Profile() {
                       </DialogContent>
                     </Dialog>
 
+                    {/* <Button >Create a Post</Button> */}
                     </div>
+                   <Dialog>
+                     <DialogTrigger asChild>
+                       <Button className="mt-4 w-full p-4">Create a Post !</Button>
+                     </DialogTrigger>
+                     <DialogContent className="max-w-full sm:max-w-3/4 h-screen sm:h-auto sm:max-h-[90vh] flex flex-col p-0 gap-0">
+                       <DialogHeader className="px-6 pt-6 pb-2">
+                         <DialogTitle>Create a Post</DialogTitle>
+                       </DialogHeader>
+                       <div className="flex-1 overflow-y-auto px-6 pb-6">
+                         <CreateCard/>
+                       </div>
+                     </DialogContent>
+                   </Dialog>
+  
                 </CardContent>
+
                 {/* <CardFooter>
                     <p>Card Footer</p>
                 </CardFooter> */}

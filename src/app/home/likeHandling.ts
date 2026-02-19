@@ -25,7 +25,7 @@ export async function likeHandling(postId:string, userId: string){
     }
 }
 
-async function checkUserLikeState(postId:string, userId: string){
+export async function checkUserLikeState(postId:string, userId: string){
     const ref =  doc(firedb, 'users', userId, 'liked_post', postId);
     const snap = await getDoc(ref);
     if(snap.exists()){

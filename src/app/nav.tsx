@@ -123,7 +123,7 @@ const Nav = () => {
 
   return (
     <nav
-      className={`fixed w-full px-4 md:px-6 py-3 md:py-4 flex items-center justify-between z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 w-full px-4 md:px-6 py-3 md:py-4 flex items-center justify-between z-50 transition-all duration-300 ${
         isTransparent
           ? 'bg-transparent'
           : 'bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/90 border-b border-border/40 shadow-lg shadow-black/5'
@@ -134,7 +134,8 @@ const Nav = () => {
       {/* ── Logo ── */}
       <div className="flex items-center space-x-3">
         <Link href="/" className="group transition-transform duration-200 hover:scale-105">
-          <div className="flex flex-col items-start">
+        <div className='rounded-lg flex flex-row items-center justify-center '>
+           <div className="flex flex-col items-start">
             <h1 className="text-2xl md:text-3xl font-bold tracking-wider freesekai-gradient group-hover:animate-pulse">
               FREESEKAI
             </h1>
@@ -142,6 +143,13 @@ const Nav = () => {
               Anonymous Forum
             </p>
           </div>
+          <div className="ml-3">
+            <span className="inline-block px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full freesekai-gradient text-white shadow-[0_0_8px_rgba(139,92,246,0.4)] animate-pulse">
+              Preview
+            </span>
+          </div>
+        </div>
+         
         </Link>
       </div>
 

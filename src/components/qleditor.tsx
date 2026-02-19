@@ -10,75 +10,62 @@ type QuillEditorProps = {
 };
 
 export default function QuillEditor({ value = '', onChange, placeholder }: QuillEditorProps) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
   const quillRef = useRef<InstanceType<typeof import('quill').default> | null>(null);
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
 
   useEffect(() => {
-    let isMounted = true;
-    const currentContainer = containerRef.current;
-    if (!currentContainer) return;
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
 
-    const wrapper = currentContainer.parentElement;
-    // Remove any existing Quill nodes to avoid duplicate toolbars (happens in StrictMode / remounts)
-    if (wrapper) {
-      wrapper.querySelectorAll('.ql-toolbar').forEach((n) => n.remove());
-      wrapper.querySelectorAll('.ql-container').forEach((n) => n.remove());
-    }
-    currentContainer.innerHTML = '';
+    // Each init cycle gets its own scoped container so stale async
+    // cleanups from StrictMode's first mount can't nuke the active mount's DOM.
+    const scopeDiv = document.createElement('div');
+    wrapper.appendChild(scopeDiv);
 
-    // Initialize Quill using your helper (async)
-    setupQuill(currentContainer, { placeholder }).then((quill) => {
-      if (!isMounted) return;
-      quillRef.current = quill;
-      const q = quill;
+    const editorDiv = document.createElement('div');
+    scopeDiv.appendChild(editorDiv);
 
-      // Set initial value
-      if (value) {
-        q.root.innerHTML = value;
+    let quillInstance: InstanceType<typeof import('quill').default> | null = null;
+
+    setupQuill(editorDiv, { placeholder }).then((quill) => {
+      // If cleanup already ran, just tear down this scope
+      if (!wrapper.contains(scopeDiv)) {
+        scopeDiv.remove();
+        return;
       }
 
-      // Listen for changes
-      q.on('text-change', () => {
-        const html = q.root.innerHTML;
-        onChange?.(html);
+      quillInstance = quill;
+      quillRef.current = quill;
+
+      if (value) {
+        quill.root.innerHTML = value;
+      }
+
+      quill.on('text-change', () => {
+        onChangeRef.current?.(quill.root.innerHTML);
       });
     });
 
-    // Cleanup
     return () => {
-      isMounted = false;
-      if (quillRef.current) {
-        try {
-          if (typeof quillRef.current.off === 'function') {
-            quillRef.current.off('text-change');
-          }
-        } catch {
-          // ignore
-        }
-        quillRef.current = null;
+      if (quillInstance) {
+        try { quillInstance.off('text-change'); } catch { /* ignore */ }
       }
-      const wrapperCleanup = currentContainer?.parentElement;
-      if (wrapperCleanup) {
-        wrapperCleanup.querySelectorAll('.ql-toolbar').forEach((n) => n.remove());
-        wrapperCleanup.querySelectorAll('.ql-container').forEach((n) => n.remove());
-      }
+      quillRef.current = null;
+      // Remove only THIS cycle's scoped container — safe even if async hasn't resolved yet
+      scopeDiv.remove();
     };
     // eslint-disable-next-line
-  }, [containerRef, placeholder]);
+  }, [placeholder]);
 
-  // Sync value prop with Quill content (e.g., for clearing the editor)
   useEffect(() => {
     if (quillRef.current && value !== quillRef.current.root.innerHTML) {
-        // Only update if the content is actually different to avoid cursor jumping
-        // This is crucial when the parent component updates the value while the user is typing
-        // But imperative for clearing the editor when value becomes empty
-        quillRef.current.root.innerHTML = value;
+      quillRef.current.root.innerHTML = value;
     }
   }, [value]);
 
   return (
-    <div className="quill-editor">
-      <div ref={containerRef}></div>
-    </div>
+    <div className="quill-editor" ref={wrapperRef} />
   );
 }

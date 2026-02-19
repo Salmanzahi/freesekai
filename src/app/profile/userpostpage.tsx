@@ -36,7 +36,7 @@ function ListPost() {
     const loading = authLoading || postsLoading;
 
     return (
-        <div className="space-y-6 px-4 pb-10">
+        <div className="space-y-6 mx-4 md:mx-40 pb-10">
             {loading ? (
                 <Skeleton className="h-64" />
             ) : posts.length === 0 ? (
