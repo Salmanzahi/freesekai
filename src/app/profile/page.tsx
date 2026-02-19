@@ -25,7 +25,7 @@ import { getProfileImageUrl } from "./profilehandling"
 import { Separator } from "@/components/ui/separator"
 import { UserPost } from "./userpostpage";
 import { useUserPosts } from "./userpost";
-import { CreateCard } from "../create/page"
+import { CreateCard } from "../create/createcard"
 
 
 export default function Profile() {
