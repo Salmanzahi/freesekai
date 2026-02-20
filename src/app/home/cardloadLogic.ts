@@ -1,3 +1,6 @@
+
+
+
 import { firedb } from '@/lib/firebase';
 import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, Timestamp, deleteDoc, doc } from 'firebase/firestore';
 import { useState, useEffect } from 'react';
@@ -27,7 +30,7 @@ export interface Reply {
 
 // ─── Hooks ───────────────────────────────────────────────
 
-export function useAuthStatus() {
+export  function useAuthStatus() {
   const [authStatus, setAuthStatus] = useState(false);
 
   useEffect(() => {
@@ -41,7 +44,7 @@ export function useAuthStatus() {
   return authStatus;
 }
 
-export function usePosts() {
+export  function usePosts() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
  

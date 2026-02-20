@@ -37,6 +37,7 @@ const navLinks: NavLink[] = [
   { label: 'Github', href: 'https://github.com/Salmanzahi', external: true },
   { label: 'Discord', href: 'https://discord.gg/K27xTT4a', external: true },
   { label: 'Create Post', href: '/create' },
+  { label: 'Room', href: '/room' },
 ];
 
 // ─── Reusable account dropdown ─────────────────────────────
