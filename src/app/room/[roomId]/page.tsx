@@ -28,6 +28,7 @@ export default function RoomPage() {
 
   useEffect(() => {
     const fetchMembers = async () => {
+
       const rawMembers = await getRoomMembers(roomId)
       const withUserData = await Promise.all(
         rawMembers.map(async (m) => ({
