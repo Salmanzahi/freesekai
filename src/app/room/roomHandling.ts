@@ -37,6 +37,7 @@ export async function handleCreate(roomName: string, keyAccess: string, userId: 
   }
 }
 
+
 export async function handleJoin(roomName: string, keyAccess: string, userId: string) {
   try {
     const ref = collection(firedb, 'rooms')

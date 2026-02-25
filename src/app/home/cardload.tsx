@@ -25,6 +25,7 @@ import {
   type Reply
 } from './cardloadLogic';
 import { useEffect } from 'react';
+import { LucideShare2 } from 'lucide-react';
 
 
 export  function PostCard({ post }: { post: Post }) {
@@ -61,6 +62,13 @@ onAuthStateChanged(auth, (user) => {
       alert("Please login to like a post");
       return false;
     }
+  };
+
+  const handleSharePost = async () => {
+   const webUrl = window.location.href;
+   const postUrl = `${webUrl}posts/${post.id}`;
+   navigator.clipboard.writeText(postUrl); 
+   alert("Post shared successfully!");
   };
 
   useEffect(() => {
@@ -196,6 +204,14 @@ onAuthStateChanged(auth, (user) => {
               <Heart className="w-[18px] h-[18px]" />
             )}
             <span className="text-sm font-medium">{post.like ?? 0}</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSharePost}
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-pink-500 hover:bg-pink-500/10 transition-colors rounded-lg px-3 h-9"
+          >
+            <LucideShare2 className="w-[18px] h-[18px]" />
           </Button>
 
           {/* Replies Drawer */}

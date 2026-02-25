@@ -10,7 +10,6 @@ import { handleCreate, handleJoin } from "./roomHandling";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-
 export default function Room() {
     const router = useRouter();
     const [isAuthUser, setIsAuthUser] = useState(false);
@@ -183,7 +182,9 @@ export default function Room() {
             </Dialog>
 
             <div className="mt-4">
+                
                 <RoomList />
+               
             </div>
         </div>
     );

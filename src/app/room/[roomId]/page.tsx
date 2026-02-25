@@ -4,12 +4,14 @@ import { useRouter } from "next/navigation"
 import { useParams } from "next/navigation"
 import { getRoomMembers, leaveRoom } from "../roomHandling"
 import { getUserByUid, type UserData } from "@/lib/userProperties"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import Image from "next/image"
+// import Link from "next/link"
 import { useRoom } from "./roomContext"
+import { RoomBreadcrumb } from "./roomBreadcrumb"
 
 interface MemberInfo {
   uid: string;
@@ -67,20 +69,13 @@ export default function RoomPage() {
       <Card className="shadow-none bg-transparent border-none">
         <CardHeader>
           <div className="flex items-center justify-between w-full">
-            <div>
-              <CardTitle className="text-2xl">{room.roomName}</CardTitle>
-              <CardDescription>
-                {members.length} member{members.length !== 1 && "s"}
-              </CardDescription>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => router.push("/room")}>
-                Back
-              </Button>
-              <Button variant="destructive" size="sm" onClick={handleLeave}>
-                Leave Room
-              </Button>
-            </div>
+            <RoomBreadcrumb
+              trail={[{ label: "Rooms", href: "/room" }]}
+              currentPage={room.roomName}
+            />
+            <Button variant="destructive" size="sm" onClick={handleLeave}>
+              Leave Room
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -114,7 +109,12 @@ export default function RoomPage() {
             ))}
           </div>
         </CardContent>
+         <Button className='w-3/4 items-center justify-center mx-auto' onClick={() => router.push(`/room/${roomId}/create`)}>Create a Post !
+         
+         </Button>
       </Card>
+      
+      
     </div>
   )
 }
