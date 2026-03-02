@@ -12,6 +12,8 @@ import Image from "next/image"
 // import Link from "next/link"
 import { useRoom } from "./roomContext"
 import { RoomBreadcrumb } from "./roomBreadcrumb"
+import { PostCard } from "./postCard"
+// import { PostCard } from "@/app/home/cardload"
 
 interface MemberInfo {
   uid: string;
@@ -113,7 +115,7 @@ export default function RoomPage() {
          
          </Button>
       </Card>
-      
+      <PostCard/>
       
     </div>
   )

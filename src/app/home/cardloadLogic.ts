@@ -7,13 +7,14 @@ import { useState, useEffect } from 'react';
 import { isAuth } from '@/lib/isauth';
 import { isAdmin } from '@/lib/isAdmin';
 import { getUserByUid, type UserData } from '@/lib/userProperties';
-
+import { supabase } from "@/lib/supabase";
 // ─── Types ───────────────────────────────────────────────
 export interface Post {
   id: string;
   body: string;
   createdAt: Timestamp;
   image: string | null;
+  imageFile: File | null;
   showProfile: boolean;
   spotifyTrack: string;
   title: string;
@@ -160,3 +161,15 @@ export async function deletePost(postId: string, userId: string) {
   }
   
 }
+
+export async function deleteImage(postId: string){
+  try {
+    const { data, error } = await supabase
+      .storage.deleteBucket(`posts/${postId}`);
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error("deleteImage error:", error);
+    return false;
+  }
+} 

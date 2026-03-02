@@ -14,8 +14,6 @@ import { auth } from '@/lib/firebase';
 import { handlePost } from '@/app/room/[roomId]/create/createHandling';
 import { toast } from "sonner";
 import { useParams } from 'next/navigation';
-
-
 export function CreateCard() {
     const params = useParams();
     const roomId = params.roomId as string;
@@ -55,7 +53,7 @@ function CreatePostForm() {
 
     const handleSubmit = async () => {
         setBtnDisabled(true);
-        const pushPost = await handlePost({postData: {title, content, image, showProfile, spotifyTrack, userId}, roomParam: {roomId}});
+        const pushPost = await handlePost({postData: {title, body: content, showProfile, spotifyTrack, userId}, roomParam: {roomId}, imageFile: image});
         console.log("handlePost result:", pushPost);
 
         if (pushPost) {

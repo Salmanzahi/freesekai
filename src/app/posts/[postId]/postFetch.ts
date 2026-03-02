@@ -1,9 +1,10 @@
-'use server'
+
 
 import { collection, getDocs, getDoc, doc } from "firebase/firestore";
 import { firedb } from "@/lib/firebase";
 import { type Post, type Reply} from "@/app/home/cardloadLogic";
 import {getUserByUid} from "@/lib/userProperties";
+import { useDebugValue } from "react";
 
 
 export async function getPost(postId: string) {
@@ -19,9 +20,8 @@ export async function getPost(postId: string) {
     console.log('fetched post data', postRef.data())
     const returnItem = {
         ...postRef.data(),
-        image: getUserProps?.photoURL ?? null,
-        userId: getUserProps?.username ?? 'Unknown',
-        createdAt: postRef.data()?.createdAt.toMillis(),
+        id: postRef.id,
     } as Post;
-    return  {returnItem, repliesArray };
+    const photoURL = getUserProps?.photoURL ?? null;
+    return  {returnItem, repliesArray, photoURL };
 }

@@ -8,6 +8,7 @@ import { deleteDoc, doc, getDoc, setDoc, updateDoc, increment } from 'firebase/f
 
 
 export async function likeHandling(postId:string, userId: string){
+    console.log(postId, userId)
     const checkUser = await checkUserLikeState(postId, userId);
     if(checkUser){
         // remove the collection ( {user_uid}/ )
@@ -15,6 +16,8 @@ export async function likeHandling(postId:string, userId: string){
         await updateDoc(doc(firedb, 'posts', postId), {
             like: increment(-1)
         });
+     
+
     }else{
         // add at ref >> {user_uid}/
         await setDoc(doc(firedb, 'users', userId, 'liked_post', postId), {
