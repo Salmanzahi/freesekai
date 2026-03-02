@@ -27,7 +27,6 @@ import {
 import { useEffect } from 'react';
 import { LucideShare2 } from 'lucide-react';
 
-
 /** Accepts a Firestore Timestamp (has .toDate) or a raw millis number. */
 function toJsDate(value: { toDate(): Date } | number | null | undefined): Date | null {
   if (!value) return null;
@@ -412,6 +411,7 @@ export function PostSkeleton() {
 
 export default function CardLoad() {
   const { posts, loading } = usePosts();
+
 
   if (loading) {
     return (

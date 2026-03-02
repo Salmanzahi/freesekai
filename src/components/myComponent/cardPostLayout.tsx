@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { useState, useEffect } from 'react';
 import { type Post, useUserData, useAdminStatus } from '@/app/home/cardloadLogic';
+import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '../ui/drawer';
 
 
 interface CardPostLayoutProps {
@@ -209,19 +210,40 @@ export function CardPostLayout({
           )}
 
           {/* Replies */}
-          {onReplyOpen && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onReplyOpen}
-              className="flex items-center gap-1.5 text-muted-foreground hover:text-purple-500 hover:bg-purple-500/10 transition-colors rounded-lg px-3 h-9"
-            >
-              <MessageCircle className="w-[18px] h-[18px]" />
-              {replyCount != null && (
-                <span className="text-sm font-medium">{replyCount}</span>
-              )}
-            </Button>
-          )}
+     
+           
+              <Drawer>
+                <DrawerTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex items-center gap-1.5 text-muted-foreground hover:text-purple-500 hover:bg-purple-500/10 transition-colors rounded-lg px-3 h-9"
+                  >
+                    <MessageCircle className="w-[18px] h-[18px]" />
+                    {replyCount != null && (
+                      <span className="text-sm font-medium">{replyCount}</span>
+                    )}
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent>
+                  <DrawerHeader>
+                    <DrawerTitle>Replies</DrawerTitle>
+                    <DrawerDescription>
+                      Lagi mager ngoding
+                      Plan:
+                      - add reply handling (create)
+                      - show reply list pke mapping array (read)
+                      - ad reply delete (delete)
+                    </DrawerDescription>
+                  </DrawerHeader>
+                  <DrawerFooter className="gap-2 sm:gap-2">
+                    <DrawerClose asChild>
+                      <Button variant="outline">Close</Button>
+                    </DrawerClose>
+                  </DrawerFooter>
+                </DrawerContent>
+              </Drawer>
+   
 
           <div className="flex-1" />
 
@@ -266,4 +288,14 @@ export function CardPostLayout({
       </CardFooter>
     </Card>
   );
+}
+
+export function ReplyLayout(){
+  return (
+    <>
+    <div>
+      </div>
+      </>
+
+  )
 }

@@ -14,6 +14,7 @@ export function PostCard() {
     const roomId = param.roomId as string
     const [posts, setPosts] = useState<Post[]>([])
     const [loading, setLoading] = useState(true)
+    const uid = auth.currentUser?.uid ?? ''
 
     useEffect(() => {
         roomPosts(roomId).then((data) => {
@@ -23,6 +24,24 @@ export function PostCard() {
         })
     }, [roomId])
 
+    const handleDelete = async (postId: string) => {
+        // 1. Snapshot the current list in case we need to rollback
+        const previousPosts = posts
+
+
+        // 3. Call the API
+        const res = await deletePost(postId, roomId, uid)
+        setPosts(prev => prev.filter(p => p.id !== postId))
+
+        if (res) {
+            toast.success("Post deleted successfully")
+        } else {
+            // 4. Rollback on failure
+            setPosts(previousPosts)
+            toast.error("Failed to delete post")
+        }
+    }
+
     return (
         <>
             {loading ? (
@@ -30,7 +49,7 @@ export function PostCard() {
             ) : (
                 <div>
                     {posts.map(post => (
-                        <PostCardItem key={post.id} post={post} roomId={roomId}  />
+                        <PostCardItem key={post.id} post={post} roomId={roomId} onDelete={handleDelete} />
                     ))}
                 </div>
             )}
@@ -42,11 +61,11 @@ export function PostCard() {
 /**
  * PostCard Wrapper
  */
-function PostCardItem({ post, roomId }: { post: Post; roomId: string }) {
+function PostCardItem({ post, roomId, onDelete }: { post: Post; roomId: string; onDelete: (postId: string) => void }) {
     const uid = auth.currentUser?.uid ?? ''
     const [liked, setLiked] = useState(false)
     const [likeCount, setLikeCount] = useState(post.like ?? 0)
-    const [dialogueState, setDialogueState] = useState(false)
+    const [dialogueState] = useState(false)
     const [showDeleteButton, setShowDeleteButton] = useState(false)
 
     useEffect(() => {
@@ -56,34 +75,23 @@ function PostCardItem({ post, roomId }: { post: Post; roomId: string }) {
 
     useEffect(() => {
         if (post.userId === uid) {
-            console.log("post.userId", post.userId)
-            console.log("uid", uid)
             setShowDeleteButton(true)
         }
     }, [post.userId, uid])
 
     const handleLike = async () => {
         const optimistic = !liked
-        setLiked(optimistic)                                    
-        setLikeCount(c => c + (optimistic ? 1 : -1))             
+        setLiked(optimistic)
+        setLikeCount(c => c + (optimistic ? 1 : -1))
         await likeHandlingRoom(post.id, uid, roomId)
         const confirmed = await checkUserLikeState(post.id, uid, roomId)
-        setLiked(confirmed)                                      
+        setLiked(confirmed)
         setLikeCount(c => c + (confirmed !== optimistic ? (confirmed ? 1 : -1) : 0))
     }
 
-    const handleDelete = async () => {
-        console.log("delete")
-        const res = await deletePost(post.id, roomId, uid)
-        if (res) {
-            toast.success("Post deleted successfully")
-            setDialogueState(false)
-        } else {
-            toast.error("Failed to delete post")
-        }
+    const replyHandling = async () => {
+        console.log('pass')
     }
-
-
 
     return (
         <CardPostLayout
@@ -91,7 +99,8 @@ function PostCardItem({ post, roomId }: { post: Post; roomId: string }) {
             liked={liked}
             likeCount={likeCount}
             onLike={handleLike}
-            onDelete={handleDelete}
+            onDelete={() => onDelete(post.id)}
+            onReplyOpen={replyHandling}
             showDeleteButton={showDeleteButton}
             dialogueState={dialogueState}
         />
