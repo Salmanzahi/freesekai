@@ -144,11 +144,6 @@ const Nav = () => {
               Anonymous Forum
             </p>
           </div>
-          <div className="ml-3">
-            <span suppressHydrationWarning className="inline-block px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full freesekai-gradient text-white">
-              Preview
-            </span>
-          </div>
         </div>
          
         </Link>
