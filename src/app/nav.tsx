@@ -143,11 +143,6 @@ const Nav = () => {
               Anonymous Forum
             </p>
           </div>
-          <div className="ml-3">
-            <span className="inline-block px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full freesekai-gradient text-white shadow-[0_0_8px_rgba(139,92,246,0.4)] animate-pulse">
-              Preview
-            </span>
-          </div>
         </div>
          
         </Link>
