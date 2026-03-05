@@ -58,3 +58,4 @@ import { supabase } from "@/lib/supabase";
     if (!publicUrl) throw new Error("Failed to get public URL for uploaded image.");
     return publicUrl;
  }
+

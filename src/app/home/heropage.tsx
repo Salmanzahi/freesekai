@@ -15,6 +15,7 @@ export default function HeroPage() {
         width={1000}
         className='absolute h-[100vh] w-full object-cover z-[-1] opacity-50'
         height={1000}
+        priority
       />
       <div className='absolute h-[100vh] w-full bg-gradient-to-t from-[#121212] to-transparent z-[-1]'></div>
       <div className='h-[100vh] flex flex-col items-center justify-center text-center px-4'>

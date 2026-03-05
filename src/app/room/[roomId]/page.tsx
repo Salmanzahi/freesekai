@@ -2,14 +2,18 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useParams } from "next/navigation"
-import { auth } from "@/lib/firebase"
-import { verifyRoomAccess, getRoomMembers, leaveRoom, type RoomData } from "../roomHandling"
+import { getRoomMembers, leaveRoom } from "../roomHandling"
 import { getUserByUid, type UserData } from "@/lib/userProperties"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import Image from "next/image"
+// import Link from "next/link"
+import { useRoom } from "./roomContext"
+import { RoomBreadcrumb } from "./roomBreadcrumb"
+import { PostCard } from "./postCard"
+// import { PostCard } from "@/app/home/cardload"
 
 interface MemberInfo {
   uid: string;
@@ -21,32 +25,13 @@ export default function RoomPage() {
   const router = useRouter()
   const params = useParams()
   const roomId = params.roomId as string
+  const { room, userId } = useRoom()
 
   const [loading, setLoading] = useState(true)
-  const [room, setRoom] = useState<RoomData | null>(null)
-  const [userId, setUserId] = useState<string | null>(null)
   const [members, setMembers] = useState<MemberInfo[]>([])
-  const [accessDenied, setAccessDenied] = useState<string | null>(null)
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (!user) {
-        setAccessDenied("no_auth")
-        setLoading(false)
-        return
-      }
-
-      setUserId(user.uid)
-
-      const result = await verifyRoomAccess(roomId, user.uid)
-
-      if (!result.authorized) {
-        setAccessDenied(result.reason)
-        setLoading(false)
-        return
-      }
-
-      setRoom(result.room)
+    const fetchMembers = async () => {
 
       const rawMembers = await getRoomMembers(roomId)
       const withUserData = await Promise.all(
@@ -58,13 +43,11 @@ export default function RoomPage() {
       )
       setMembers(withUserData)
       setLoading(false)
-    })
-
-    return () => unsubscribe()
+    }
+    fetchMembers()
   }, [roomId])
 
   const handleLeave = async () => {
-    if (!userId) return
     const ok = await leaveRoom(roomId, userId)
     if (ok) router.push("/room")
   }
@@ -83,51 +66,18 @@ export default function RoomPage() {
     )
   }
 
-  if (accessDenied) {
-    return (
-      <div className="p-4 mt-24 max-w-md mx-auto">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-destructive">Access Denied</CardTitle>
-            <CardDescription>
-              {accessDenied === "no_auth" && "You need to sign in to access this room."}
-              {accessDenied === "not_member" && "You are not a member of this room."}
-              {accessDenied === "room_not_found" && "This room does not exist."}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex gap-2">
-            {accessDenied === "no_auth" ? (
-              <Button onClick={() => router.push("/login")}>Sign In</Button>
-            ) : (
-              <Button onClick={() => router.push("/room")}>Back to Rooms</Button>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  if (!room) return null
-
   return (
     <div className="p-4 mt-24 max-w-2xl mx-auto">
       <Card className="shadow-none bg-transparent border-none">
         <CardHeader>
           <div className="flex items-center justify-between w-full">
-            <div>
-              <CardTitle className="text-2xl">{room.roomName}</CardTitle>
-              <CardDescription>
-                {members.length} member{members.length !== 1 && "s"}
-              </CardDescription>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => router.push("/room")}>
-                Back
-              </Button>
-              <Button variant="destructive" size="sm" onClick={handleLeave}>
-                Leave Room
-              </Button>
-            </div>
+            <RoomBreadcrumb
+              trail={[{ label: "Rooms", href: "/room" }]}
+              currentPage={room.roomName}
+            />
+            <Button variant="destructive" size="sm" onClick={handleLeave}>
+              Leave Room
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -161,7 +111,12 @@ export default function RoomPage() {
             ))}
           </div>
         </CardContent>
+         <Button className='w-3/4 items-center justify-center mx-auto' onClick={() => router.push(`/room/${roomId}/create`)}>Create a Post !
+         
+         </Button>
       </Card>
+      <PostCard/>
+      
     </div>
   )
 }

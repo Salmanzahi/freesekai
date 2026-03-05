@@ -1,9 +1,10 @@
 import { firedb } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, Timestamp } from "firebase/firestore";
 
 export interface UserData {
   username: string;
   photoURL: string | null;
+  createdAt: Timestamp;
 }
 
 export async function getUserByUid(uid: string): Promise<UserData | null> {
@@ -16,5 +17,6 @@ export async function getUserByUid(uid: string): Promise<UserData | null> {
   return {
     username: data.username ?? 'Unknown',
     photoURL: data.photoURL ?? null,
+    createdAt: data.createdAt ?? Timestamp.now(),
   };
 }

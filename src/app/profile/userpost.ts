@@ -1,7 +1,7 @@
 import { firedb } from '@/lib/firebase';
 import { collection, query, orderBy, onSnapshot, doc, getDoc } from 'firebase/firestore';
 import { useState, useEffect } from 'react';
-import type { Post } from '../home/cardloadLogic';
+import type { Post } from '@/global_interface/interface';
 
 export function useUserPosts(userId: string) {
     const [posts, setPosts] = useState<Post[]>([]);

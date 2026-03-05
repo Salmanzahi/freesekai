@@ -1,33 +1,17 @@
+
+
+
 import { firedb } from '@/lib/firebase';
-import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, Timestamp, deleteDoc, doc } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
 import { useState, useEffect } from 'react';
 import { isAuth } from '@/lib/isauth';
 import { isAdmin } from '@/lib/isAdmin';
 import { getUserByUid, type UserData } from '@/lib/userProperties';
-
-// ─── Types ───────────────────────────────────────────────
-export interface Post {
-  id: string;
-  body: string;
-  createdAt: Timestamp;
-  image: string | null;
-  showProfile: boolean;
-  spotifyTrack: string;
-  title: string;
-  userId: string;
-  like?: number;
-}
-
-export interface Reply {
-  id: string;
-  createdAt: Timestamp | null;
-  text: string;
-  userId: string;
-}
-
+import { supabase } from "@/lib/supabase";
+import { Post, Reply } from '@/global_interface/interface';
 // ─── Hooks ───────────────────────────────────────────────
 
-export function useAuthStatus() {
+export  function useAuthStatus() {
   const [authStatus, setAuthStatus] = useState(false);
 
   useEffect(() => {
@@ -41,7 +25,7 @@ export function useAuthStatus() {
   return authStatus;
 }
 
-export function usePosts() {
+export  function usePosts() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
  
@@ -157,3 +141,15 @@ export async function deletePost(postId: string, userId: string) {
   }
   
 }
+
+export async function deleteImage(postId: string){
+  try {
+    const { data, error } = await supabase
+      .storage.deleteBucket(`posts/${postId}`);
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error("deleteImage error:", error);
+    return false;
+  }
+} 

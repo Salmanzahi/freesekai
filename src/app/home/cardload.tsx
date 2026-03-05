@@ -16,16 +16,23 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { deletePost } from './cardloadLogic';
 import { likeHandling, checkUserLikeState } from './likeHandling';
 import {
-  type Post,
   usePosts,
   useReplies,
   useUserData,
   useAdminStatus,
-  newReplies,
-  type Reply
-} from './cardloadLogic';
-import { useEffect } from 'react';
+  newReplies} from './cardloadLogic';
+import { type Post } from '@/global_interface/interface';
+import { type Reply } from '@/global_interface/interface';
+import { useEffect, useRef } from 'react';
+import { LucideShare2 } from 'lucide-react';
 
+/** Accepts a Firestore Timestamp (has .toDate) or a raw millis number. */
+function toJsDate(value: { toDate(): Date } | number | null | undefined): Date | null {
+  if (!value) return null;
+  if (typeof value === 'number') return new Date(value);
+  if (typeof (value as { toDate(): Date }).toDate === 'function') return (value as { toDate(): Date }).toDate();
+  return null;
+}
 
 export  function PostCard({ post }: { post: Post }) {
   const replies = useReplies(post.id);
@@ -33,9 +40,10 @@ export  function PostCard({ post }: { post: Post }) {
   const userData = useUserData(post.userId);
   const isAdminUser = useAdminStatus(post.userId);
   const [replyText, setReplyText] = useState("");
-  const [liked, setLiked] = useState(false)
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(post.like ?? 0);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-
+  const isLiking = useRef(false)
 onAuthStateChanged(auth, (user) => {
     if (user) {
       setMyPost(user.uid === post.userId);
@@ -54,13 +62,32 @@ onAuthStateChanged(auth, (user) => {
 
   const handleLikePost = async () => {
     const user = auth.currentUser;
-    if (user) {
-      await likeHandling(post.id, user.uid);
-      return true;
-    } else {
+    if (!user) {
       alert("Please login to like a post");
-      return false;
+      return;
     }
+    
+    if(isLiking.current) return
+    isLiking.current = true
+
+    const nowLiked = !liked;
+    setLiked(nowLiked);
+    setLikeCount(prev => nowLiked ? prev + 1 : prev - 1);
+    try {
+      await likeHandling(post.id, user.uid);
+    } catch {
+      setLiked(!nowLiked);
+      setLikeCount(prev => nowLiked ? prev - 1 : prev + 1);
+    } finally {
+      isLiking.current = false
+    }
+  };
+
+  const handleSharePost = async () => {
+   const webUrl = window.location.href;
+   const postUrl = `${webUrl}posts/${post.id}`;
+   navigator.clipboard.writeText(postUrl); 
+   alert("Post shared successfully!");
   };
 
   useEffect(() => {
@@ -86,16 +113,17 @@ onAuthStateChanged(auth, (user) => {
     }
   };
 
-  const formattedDate = post.createdAt
-    ? post.createdAt.toDate().toLocaleDateString('en-US', {
+  const _postDate = toJsDate(post.createdAt as Parameters<typeof toJsDate>[0]);
+  const formattedDate = _postDate
+    ? _postDate.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
       })
     : 'Just now';
 
-  const formattedTime = post.createdAt
-    ? post.createdAt.toDate().toLocaleTimeString('en-US', {
+  const formattedTime = _postDate
+    ? _postDate.toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
       })
@@ -195,7 +223,15 @@ onAuthStateChanged(auth, (user) => {
             ) : (
               <Heart className="w-[18px] h-[18px]" />
             )}
-            <span className="text-sm font-medium">{post.like ?? 0}</span>
+            <span className="text-sm font-medium">{likeCount}</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSharePost}
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-pink-500 hover:bg-pink-500/10 transition-colors rounded-lg px-3 h-9"
+          >
+            <LucideShare2 className="w-[18px] h-[18px]" />
           </Button>
 
           {/* Replies Drawer */}
@@ -300,8 +336,9 @@ onAuthStateChanged(auth, (user) => {
 function ReplyCard({ reply }: { reply: Reply }) {
   const replyUserData = useUserData(reply.userId);
 
-  const formattedReplyDate = reply.createdAt
-    ? reply.createdAt.toDate().toLocaleDateString('en-US', {
+  const _replyDate = toJsDate(reply.createdAt as Parameters<typeof toJsDate>[0]);
+  const formattedReplyDate = _replyDate
+    ? _replyDate.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
       })
@@ -341,7 +378,7 @@ function ReplyCard({ reply }: { reply: Reply }) {
 
 // ─── Loading Skeleton ────────────────────────────────────
 
-function PostSkeleton() {
+export function PostSkeleton() {
   return (
     <Card className="flex flex-col rounded-2xl border border-border/30 bg-card/60 backdrop-blur-sm shadow-sm overflow-hidden">
       <CardHeader className="px-5 pt-5 pb-3">
@@ -378,6 +415,7 @@ function PostSkeleton() {
 
 export default function CardLoad() {
   const { posts, loading } = usePosts();
+
 
   if (loading) {
     return (
