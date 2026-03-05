@@ -3,7 +3,8 @@
 import { useParams } from "next/navigation";
 import { getPost } from "./postFetch";
 import { useEffect, useState } from "react";
-import { type Post, type Reply } from "@/app/home/cardloadLogic";
+import { type Post } from '@/global_interface/interface';
+import { type Reply } from '@/global_interface/interface';
 import {
   Card,
   CardContent,

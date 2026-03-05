@@ -11,12 +11,17 @@ import {
   DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from '@/components/ui/dialog';
 import { useState, useEffect } from 'react';
-import { type Post, useUserData, useAdminStatus } from '@/app/home/cardloadLogic';
+import { useUserData, useAdminStatus } from '@/app/home/cardloadLogic';
+import { type Post } from '@/global_interface/interface';
+import { type Reply } from '@/global_interface/interface';
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '../ui/drawer';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 
 interface CardPostLayoutProps {
   post: Post;
+  replies: Reply[];
   /** Is the current user's like active? */
   liked?: boolean;
   /** Displayed like count (pass your own optimistic state from the parent). */
@@ -32,6 +37,11 @@ interface CardPostLayoutProps {
   onReplyOpen?: () => void;
 }
 
+
+// interface CardRepliesLayoutProps {
+//   replies: Reply;
+
+// }
 // ─── Helper: convert Firestore Timestamp or millis number to a Date ───────────
 
 function toJsDate(value: unknown): Date | null {
@@ -82,6 +92,7 @@ function toJsDate(value: unknown): Date | null {
  */
 export function CardPostLayout({
   post,
+  replies,
   liked = false,
   likeCount,
   dialogueState,
@@ -93,12 +104,13 @@ export function CardPostLayout({
   onReplyOpen,
 }: CardPostLayoutProps) {
   const userData     = useUserData(post.userId);
+  const username = userData?.username
+  const userPhoto = userData?.photoURL
   const isAdminUser  = useAdminStatus(post.userId);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(dialogueState);  
   const [replyCount, setReplyCount] = useState(0);
-  const [showDelete, setShowDelete] = useState(showDeleteButton);
+  // const [showDelete, setShowDelete] = useState(showDeleteButton);
 //   const [liked, setLiked] = useState(false);
-
 
   const _date       = toJsDate(post.createdAt);
   const formattedDate = _date
@@ -121,9 +133,9 @@ export function CardPostLayout({
           <div className="relative shrink-0">
             <div className="absolute -inset-[2px] rounded-full bg-gradient-to-br from-purple-500 to-pink-500 opacity-60" />
             <Avatar className="relative w-9 h-9 ring-2 ring-background">
-              <AvatarImage src={userData?.photoURL || ''} alt={userData?.username || 'User'} />
+              <AvatarImage src={userPhoto || ''} alt={username || 'User'} />
               <AvatarFallback className="bg-gradient-to-br from-purple-600 to-pink-500 text-white text-xs font-bold">
-                {(userData?.username || 'U').substring(0, 2).toUpperCase()}
+                {(username || 'U').substring(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
           </div>
@@ -131,7 +143,7 @@ export function CardPostLayout({
           <div className="flex flex-col min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-foreground truncate">
-                {userData?.username || 'Unknown'}
+                {username || 'Unknown'}
               </span>
               {isAdminUser && (
                 <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-white leading-none">
@@ -211,8 +223,7 @@ export function CardPostLayout({
 
           {/* Replies */}
      
-           
-              <Drawer>
+           <Drawer>
                 <DrawerTrigger asChild>
                   <Button
                     variant="ghost"
@@ -229,11 +240,13 @@ export function CardPostLayout({
                   <DrawerHeader>
                     <DrawerTitle>Replies</DrawerTitle>
                     <DrawerDescription>
-                      Lagi mager ngoding
-                      Plan:
-                      - add reply handling (create)
-                      - show reply list pke mapping array (read)
-                      - ad reply delete (delete)
+                    
+                        <Label htmlFor="reply">Reply</Label>
+                        <Input id="reply" type="text" />
+                      
+                      {replies.map((reply) => (
+                        <ReplyLayout key={reply.id} reply={reply} />
+                      ))}
                     </DrawerDescription>
                   </DrawerHeader>
                   <DrawerFooter className="gap-2 sm:gap-2">
@@ -244,6 +257,7 @@ export function CardPostLayout({
                 </DrawerContent>
               </Drawer>
    
+              
 
           <div className="flex-1" />
 
@@ -290,12 +304,41 @@ export function CardPostLayout({
   );
 }
 
-export function ReplyLayout(){
+export function ReplyLayout({reply}: {reply: Reply}){
+  const replyUserData = useUserData(reply.userId);
+  const formattedReplyDate = reply.createdAt?.toDate().toLocaleString();
   return (
     <>
-    <div>
+     <div className="group/reply flex items-start gap-3 p-3.5 rounded-xl bg-muted/25 border border-border/15 hover:bg-muted/45 hover:border-border/30 transition-all duration-200">
+      {/* Avatar */}
+      <div className="relative shrink-0">
+        <div className="absolute -inset-[1.5px] rounded-full bg-gradient-to-br from-purple-500/40 to-pink-500/40" />
+        <Avatar className="relative w-8 h-8 ring-1 ring-background">
+          <AvatarImage src={replyUserData?.photoURL || ''} alt={replyUserData?.username || 'User'} />
+          <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-[10px] font-bold">
+            {(replyUserData?.username || 'U').substring(0, 2).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
       </div>
+
+      {/* Content */}
+      <div className="flex flex-col gap-1 min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold text-foreground/90 truncate">
+            {replyUserData?.username || 'Anonymous'}
+          </span>
+          <span className="text-[11px] text-muted-foreground/60">
+            {formattedReplyDate}
+          </span>
+        </div>
+        <p className="text-sm text-foreground/70 leading-relaxed break-words">
+          {reply.text}
+        </p>
+      </div>
+    </div>
       </>
 
   )
 }
+
+

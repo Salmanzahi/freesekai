@@ -1,8 +1,9 @@
 'use client'
-import type { Post } from "@/app/home/cardloadLogic"
-import { useEffect, useState } from 'react'
+import type { Post } from '@/global_interface/interface'
+import type { Reply } from '@/global_interface/interface'
+import { useEffect, useRef, useState } from 'react'
 import { useParams } from "next/navigation"
-import { roomPosts } from "./postHandling"
+import { roomPosts, replyPosts } from "./postHandling"
 import { CardPostLayout } from "@/components/myComponent/cardPostLayout"
 import { likeHandlingRoom, checkUserLikeState, deletePost } from "./postHandling"
 import { auth } from "@/lib/firebase"
@@ -66,6 +67,7 @@ function PostCardItem({ post, roomId, onDelete }: { post: Post; roomId: string; 
     const [liked, setLiked] = useState(false)
     const [likeCount, setLikeCount] = useState(post.like ?? 0)
     const [dialogueState] = useState(false)
+    const [repliesList, setRepliesList] = useState<Reply[]>([])
     const [showDeleteButton, setShowDeleteButton] = useState(false)
 
     useEffect(() => {
@@ -79,14 +81,36 @@ function PostCardItem({ post, roomId, onDelete }: { post: Post; roomId: string; 
         }
     }, [post.userId, uid])
 
+    // fetch reply need: roomid, postid
+    useEffect(() => {
+        const fetchReplies = async () => {
+            const replies = await replyPosts(roomId, post.id)
+            setRepliesList(replies)
+        }
+        fetchReplies()
+    }, [roomId, post.id])
+
+    const isLiking = useRef(false)
+
     const handleLike = async () => {
+        if (isLiking.current) return
+        isLiking.current = true
+
         const optimistic = !liked
         setLiked(optimistic)
         setLikeCount(c => c + (optimistic ? 1 : -1))
-        await likeHandlingRoom(post.id, uid, roomId)
-        const confirmed = await checkUserLikeState(post.id, uid, roomId)
-        setLiked(confirmed)
-        setLikeCount(c => c + (confirmed !== optimistic ? (confirmed ? 1 : -1) : 0))
+
+        try {
+            const confirmed = await likeHandlingRoom(post.id, uid, roomId)
+            // Re-sync with the DB truth after the write complete
+            setLiked(confirmed)
+            // If the optimistic guess was wrong, correct the count
+            if (confirmed !== optimistic) {
+                setLikeCount(c => c + (confirmed ? 1 : -1))
+            }
+        } finally {
+            isLiking.current = false
+        }
     }
 
     const replyHandling = async () => {
@@ -96,6 +120,7 @@ function PostCardItem({ post, roomId, onDelete }: { post: Post; roomId: string; 
     return (
         <CardPostLayout
             post={post}
+            replies={repliesList}
             liked={liked}
             likeCount={likeCount}
             onLike={handleLike}

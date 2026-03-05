@@ -16,15 +16,14 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { deletePost } from './cardloadLogic';
 import { likeHandling, checkUserLikeState } from './likeHandling';
 import {
-  type Post,
   usePosts,
   useReplies,
   useUserData,
   useAdminStatus,
-  newReplies,
-  type Reply
-} from './cardloadLogic';
-import { useEffect } from 'react';
+  newReplies} from './cardloadLogic';
+import { type Post } from '@/global_interface/interface';
+import { type Reply } from '@/global_interface/interface';
+import { useEffect, useRef } from 'react';
 import { LucideShare2 } from 'lucide-react';
 
 /** Accepts a Firestore Timestamp (has .toDate) or a raw millis number. */
@@ -44,7 +43,7 @@ export  function PostCard({ post }: { post: Post }) {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(post.like ?? 0);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-
+  const isLiking = useRef(false)
 onAuthStateChanged(auth, (user) => {
     if (user) {
       setMyPost(user.uid === post.userId);
@@ -68,6 +67,9 @@ onAuthStateChanged(auth, (user) => {
       return;
     }
     
+    if(isLiking.current) return
+    isLiking.current = true
+
     const nowLiked = !liked;
     setLiked(nowLiked);
     setLikeCount(prev => nowLiked ? prev + 1 : prev - 1);
@@ -76,6 +78,8 @@ onAuthStateChanged(auth, (user) => {
     } catch {
       setLiked(!nowLiked);
       setLikeCount(prev => nowLiked ? prev - 1 : prev + 1);
+    } finally {
+      isLiking.current = false
     }
   };
 

@@ -2,33 +2,13 @@
 
 
 import { firedb } from '@/lib/firebase';
-import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, Timestamp, deleteDoc, doc } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
 import { useState, useEffect } from 'react';
 import { isAuth } from '@/lib/isauth';
 import { isAdmin } from '@/lib/isAdmin';
 import { getUserByUid, type UserData } from '@/lib/userProperties';
 import { supabase } from "@/lib/supabase";
-// ─── Types ───────────────────────────────────────────────
-export interface Post {
-  id: string;
-  body: string;
-  createdAt: Timestamp;
-  image: string | null;
-  imageFile: File | null;
-  showProfile: boolean;
-  spotifyTrack: string;
-  title: string;
-  userId: string;
-  like?: number;
-}
-
-export interface Reply {
-  id: string;
-  createdAt: Timestamp | null;
-  text: string;
-  userId: string;
-}
-
+import { Post, Reply } from '@/global_interface/interface';
 // ─── Hooks ───────────────────────────────────────────────
 
 export  function useAuthStatus() {
