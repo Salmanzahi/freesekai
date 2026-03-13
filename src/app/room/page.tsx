@@ -18,6 +18,7 @@ export default function Room() {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [userId, setUserId] = useState('');
+
     const [dialog, setDialog] = useState<{ open: boolean; title: string; message: string; roomId: string | null }>({
         open: false, title: '', message: '', roomId: null,
     });
@@ -55,11 +56,7 @@ export default function Room() {
             setDialog({
                 open: true,
                 title: 'Failed',
-                message: result.message === 'room_not_found'
-                    ? 'Room not found. Check the name.'
-                    : result.message === 'invalid_key'
-                        ? 'Invalid key access.'
-                        : 'Something went wrong.',
+                message: result.message,
                 roomId: null,
             });
         }
@@ -87,8 +84,8 @@ export default function Room() {
             setDialog({
                 open: true,
                 title: 'Error',
-                message: 'Failed to create room.',
-                roomId: null,
+                message: result.message as string,
+                roomId: null,   
             });
         }
 

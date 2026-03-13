@@ -25,6 +25,7 @@ import { getProfileImageUrl } from "./profilehandling"
 import { Separator } from "@/components/ui/separator"
 import { UserPost } from "./userpostpage";
 import { useUserPosts } from "./userpost";
+import { toast } from "sonner";
 import { CreateCard } from "../create/createcard"
 
 
@@ -207,15 +208,21 @@ export default function Profile() {
                             onClick={async () => {
                               if (authUser && tempUsername !== null) {
                               // Validation: only allow alphanumeric and underscore, 5-10 chars
-                                const validation = validateUsername(tempUsername, 5, 20);
+                                const validation = await validateUsername(tempUsername, 5, 20);
                                 if (!validation.ok) {
-                                  setUsernameError(true);
+                                  toast.error(validation.reason);
                                   setUsernameModalOpen(true);
                                   setTimeout(() => setUsernameError(false), 2000);
                                   return;
                                 }
                                 setUsernameError(false);
-                                await updateusername(authUser.uid, tempUsername);
+                                const res = await updateusername(authUser.uid, tempUsername);
+                                if (!res.ok) {
+                                  toast.error(res.reason);
+                                  setUsernameModalOpen(true);
+                                  setTimeout(() => setUsernameError(false), 2000);
+                                  return;
+                                }
                               setUsername(tempUsername);
                               setUsernameModalOpen(false);
                               setShowAlert(true);

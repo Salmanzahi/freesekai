@@ -22,7 +22,7 @@ import { ModeToggle } from '@/components/mode-toggle';
 import { signOut } from "firebase/auth";
 import { auth } from '@/lib/firebase';
 import { checkAuthUser } from '@/lib/regisauth';
-import { useRouter } from 'next/navigation';
+
 
 // ─── Nav link definitions ─────────────────────────────────
 // "external" links open in a new tab; "internal" links use Next.js client-side routing.
@@ -44,9 +44,11 @@ const navLinks: NavLink[] = [
 function AccountDropdown({
   mobile = false,
   onSignOut,
+  onClose,
 }: {
   mobile?: boolean;
   onSignOut: () => Promise<void>;
+  onClose?: () => void;
 }) {
   return (
     <DropdownMenu>
@@ -63,19 +65,19 @@ function AccountDropdown({
       <DropdownMenuContent className={`z-[100] ${mobile ? "w-full" : "min-w-[140px]"} shadow-lg`} align="end">
         {auth.currentUser ? (
           <>
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem className="cursor-pointer" onClick={onClose}>
               <Link href="/profile" className="w-full">Profile</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer" onClick={onSignOut}>
+            <DropdownMenuItem className="cursor-pointer" onClick={() => { onSignOut(); onClose?.(); }}>
               Sign Out
             </DropdownMenuItem>
           </>
         ) : (
           <>
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem className="cursor-pointer" onClick={onClose}>
               <Link href="/login" className="w-full">Login</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem className="cursor-pointer" onClick={onClose}>
               <Link href="/register" className="w-full">Register</Link>
             </DropdownMenuItem>
           </>
@@ -86,11 +88,11 @@ function AccountDropdown({
 }
 
 const Nav = () => {
-  const router = useRouter();
   const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [visible, setVisible] = useState(true);
   const [isTransparent, setIsTransparent] = useState(true);
   const [, setIsAuthUser] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -119,7 +121,7 @@ const Nav = () => {
   const handleSignOut = async () => {
     await signOut(auth);
     setIsAuthUser(false);
-    router.push("/");
+    window.location.href = "/";
   };
 
   return (
@@ -192,7 +194,7 @@ const Nav = () => {
       {/* ── Mobile nav ── */}
       <div className="md:hidden flex items-center space-x-2">
         <ModeToggle />
-        <Drawer>
+        <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
           <DrawerTrigger asChild>
             <Button
               variant="ghost"
@@ -213,7 +215,7 @@ const Nav = () => {
             </DrawerHeader>
 
             <div className="px-6 pb-6 space-y-4">
-              <AccountDropdown mobile onSignOut={handleSignOut} />
+              <AccountDropdown mobile onSignOut={handleSignOut} onClose={() => setDrawerOpen(false)} />
 
               <div className="grid gap-2">
                 {navLinks.map((link) => (
@@ -228,11 +230,12 @@ const Nav = () => {
                         href={link.href}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={() => setDrawerOpen(false)}
                       >
                         {link.label}
                       </a>
                     ) : (
-                      <Link href={link.href}>
+                      <Link href={link.href} onClick={() => setDrawerOpen(false)}>
                         {link.label}
                       </Link>
                     )}

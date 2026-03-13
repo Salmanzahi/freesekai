@@ -2,8 +2,9 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useParams } from "next/navigation"
-import { getRoomMembers, leaveRoom } from "../roomHandling"
-import { getUserByUid, type UserData } from "@/lib/userProperties"
+import { getRoomMembers, leaveRoom, kickMember } from "../roomHandling"
+import { getUserByUid } from "@/lib/userProperties"
+import { type UserData } from "@/global_interface/interface"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -13,6 +14,18 @@ import Image from "next/image"
 import { useRoom } from "./roomContext"
 import { RoomBreadcrumb } from "./roomBreadcrumb"
 import { PostCard } from "./postCard"
+import { LucideArchiveX } from "lucide-react"
+import { toast } from "sonner"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog"
 // import { PostCard } from "@/app/home/cardload"
 
 interface MemberInfo {
@@ -29,6 +42,7 @@ export default function RoomPage() {
 
   const [loading, setLoading] = useState(true)
   const [members, setMembers] = useState<MemberInfo[]>([])
+  const [isOwner, setIsOwner] = useState(false)
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -47,10 +61,38 @@ export default function RoomPage() {
     fetchMembers()
   }, [roomId])
 
+
+
   const handleLeave = async () => {
     const ok = await leaveRoom(roomId, userId)
     if (ok) router.push("/room")
   }
+
+  const handleKick = async (uid: string) => {
+    const success = await kickMember(roomId, uid);
+    if (success) {
+      toast.success("Member kicked successfully.");
+      setMembers((prev) => prev.filter((m) => m.uid !== uid));
+    } else {
+      toast.error("Failed to kick the member.");
+    }
+  }
+
+  useEffect(() => {
+    const checkOwner = async () => {
+      const rawMembers = await getRoomMembers(roomId)
+      const getCurrUswr = rawMembers.find((m) => m.uid === userId)
+      // console.log("getCurrUswr", getCurrUswr)
+      const isCurrOwner = getCurrUswr?.role === "owner"
+      if (isCurrOwner) {
+        console.log("isCurrOwner", isCurrOwner)
+        setIsOwner(true)
+      }
+      // console.log("isCurrOwner", isCurrOwner)
+      // console.log("rawMembers", rawMembers)
+    }
+    checkOwner()
+  }, [roomId, userId])
 
   if (loading) {
     return (
@@ -107,6 +149,35 @@ export default function RoomPage() {
                   )}
                 </div>
                 {m.role === "owner" && <Badge variant="secondary">Owner</Badge>}
+                {isOwner && m.role !== "owner" && (
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="destructive" size='sm'>
+                        <LucideArchiveX/> Kick 
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Kick Member</DialogTitle>
+                        <DialogDescription>
+                          Are you sure you want to kick {m.userData?.username || "this user"} from the room?
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button variant="outline">Cancel</Button>
+                        </DialogClose>
+                        <DialogClose asChild>
+                          <Button variant="destructive" onClick={() => handleKick(m.uid)}>
+                            Confirm Kick
+                          </Button>
+                        </DialogClose>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                )
+                }
+                
               </div>
             ))}
           </div>

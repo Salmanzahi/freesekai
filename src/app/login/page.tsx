@@ -20,6 +20,7 @@ import { useState } from "react";
 import {
   Eye,
   EyeOff,
+  Loader2,
 } from "lucide-react"
 
 
@@ -55,6 +56,7 @@ async function handlesigout() {
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState("");
   
   async function handleSubmit(e: React.FormEvent) {
@@ -77,7 +79,7 @@ export default function Login() {
     <CardHeader>
       <CardTitle>Login to your account</CardTitle>
       <CardDescription>
-        Enter your email below to login to your account
+        Enter your email or username below to login to your account
       </CardDescription>
       <CardAction>
         <Button variant="link"><Link href="/register">Sign Up</Link></Button>
@@ -88,11 +90,11 @@ export default function Login() {
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col gap-6">
           <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Email or Username</Label>
             <Input
               id="email"
-              type="email"
-              placeholder="m@example.com"
+              type="text"
+              placeholder="Email or Username"
               required
             />
           </div>
@@ -127,22 +129,34 @@ export default function Login() {
             </Button>
           </div>
         </div>
-        <Button type="submit" className="w-full mt-4 mb-2" disabled={isLoading}>
-          {isLoading ? "Logging in..." : "Login"}
+        <Button type="submit" className="w-full mt-4 mb-2" disabled={isLoading || isGoogleLoading}>
+          {isLoading ? (
+            <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Logging in...</>
+          ) : (
+            "Login"
+          )}
         </Button>
         <Button 
            variant="outline" 
            type="button"
            className="w-full"
+           disabled={isLoading || isGoogleLoading}
            onClick={async () => {
+             setIsGoogleLoading(true);
              try {
                 await loginWithGoogle();
              } catch {
                 // handle error
+             } finally {
+                setIsGoogleLoading(false);
              }
            }}
            >
-        Login with Google
+        {isGoogleLoading ? (
+          <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Logging in...</>
+        ) : (
+          "Login with Google"
+        )}
       </Button>
       </form>
     </CardContent>

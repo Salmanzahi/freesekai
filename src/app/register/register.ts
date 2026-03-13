@@ -8,7 +8,7 @@ export async function registerUserWithEmailAndPassword(email: string, password: 
     const user = userCredential.user;
     await createuserproperties(username, user.email || "", user.uid, user.photoURL || "", Date.now());
     console.log("User registered:", user);
-    window.location.href = "/login";
+    window.location.href = "/";
     return user;
   } catch (error) {
     console.error("Error registering user:", error);

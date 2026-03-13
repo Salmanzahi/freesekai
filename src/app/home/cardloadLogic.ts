@@ -6,7 +6,8 @@ import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp, delete
 import { useState, useEffect } from 'react';
 import { isAuth } from '@/lib/isauth';
 import { isAdmin } from '@/lib/isAdmin';
-import { getUserByUid, type UserData } from '@/lib/userProperties';
+import { getUserByUid } from '@/lib/userProperties';
+import { type UserData } from "@/global_interface/interface";
 import { supabase } from "@/lib/supabase";
 import { Post, Reply } from '@/global_interface/interface';
 // ─── Hooks ───────────────────────────────────────────────

@@ -19,4 +19,9 @@ export interface Post {
   userId: string;
   like?: number;
 }
+export interface UserData {
+  username: string;
+  photoURL: string | null;
+  createdAt: Timestamp;
+}
 
