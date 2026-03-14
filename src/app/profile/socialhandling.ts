@@ -72,3 +72,43 @@ export async function unfollowUser(currentUserId: string, profileId: string) {
     const currentUserFollowingRef = doc(firedb, 'users', currentUserId, 'following', profileId);
     await deleteDoc(currentUserFollowingRef);
 }
+
+import { getDocs, getDoc } from 'firebase/firestore';
+
+export type FollowUser = {
+    uid: string;
+    username: string | null;
+    photoURL: string | null;
+};
+
+export async function getFollowUsersData(uids: string[]): Promise<FollowUser[]> {
+    const usersData: FollowUser[] = [];
+    for (const uid of uids) {
+        const userRef = doc(firedb, 'users', uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+            const data = userSnap.data();
+            usersData.push({
+                uid,
+                username: data.username || null,
+                photoURL: data.photoURL || null,
+            });
+        }
+    }
+    return usersData;
+}
+
+export async function getFollowers(profileId: string): Promise<FollowUser[]> {
+    const followersRef = collection(firedb, 'users', profileId, 'followers');
+    const snapshot = await getDocs(followersRef);
+    const uids = snapshot.docs.map(doc => doc.id);
+    return getFollowUsersData(uids);
+}
+
+export async function getFollowing(profileId: string): Promise<FollowUser[]> {
+    const followingRef = collection(firedb, 'users', profileId, 'following');
+    const snapshot = await getDocs(followingRef);
+    const uids = snapshot.docs.map(doc => doc.id);
+    return getFollowUsersData(uids);
+}
+

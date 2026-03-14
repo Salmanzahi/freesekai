@@ -27,6 +27,8 @@ import { UserPost } from "./userpostpage";
 import { useUserPosts } from "./userpost";
 import { toast } from "sonner";
 import { CreateCard } from "../create/createcard"
+import { useFollowStats, getFollowers, getFollowing, type FollowUser } from "./socialhandling";
+import { FollowListModal } from "./FollowListModal";
 
 
 export default function Profile() {
@@ -41,6 +43,35 @@ export default function Profile() {
   const [profileImg, setProfileImg] = useState<string | null>(null);
 
   const [ usernameError, setUsernameError ] = useState<boolean>(false);
+
+  const [followersModalOpen, setFollowersModalOpen] = useState(false);
+  const [followingModalOpen, setFollowingModalOpen] = useState(false);
+  const [followersList, setFollowersList] = useState<FollowUser[]>([]);
+  const [followingList, setFollowingList] = useState<FollowUser[]>([]);
+  const [followLoading, setFollowLoading] = useState(false);
+
+  const { followersCount, followingCount } = useFollowStats(authUser?.uid ?? "");
+
+  const handleOpenFollowers = async () => {
+      setFollowersModalOpen(true);
+      if (authUser?.uid) {
+          setFollowLoading(true);
+          const list = await getFollowers(authUser.uid);
+          setFollowersList(list);
+          setFollowLoading(false);
+      }
+  };
+
+  const handleOpenFollowing = async () => {
+      setFollowingModalOpen(true);
+      if (authUser?.uid) {
+          setFollowLoading(true);
+          const list = await getFollowing(authUser.uid);
+          setFollowingList(list);
+          setFollowLoading(false);
+      }
+  };
+
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             setAuthUser(user ?? null);
@@ -138,13 +169,13 @@ export default function Profile() {
                       </div>
                     )}
                      <div className="flex items-center justify-around w-full mt-6 mb-2">
-                        <div className="flex flex-col items-center hover:bg-muted/50 p-2 rounded-lg cursor-pointer transition-colors flex-1">
-                           <span className="font-bold text-xl">0</span>
+                        <div className="flex flex-col items-center hover:bg-muted/50 p-2 rounded-lg cursor-pointer transition-colors flex-1" onClick={handleOpenFollowing}>
+                           <span className="font-bold text-xl">{followingCount}</span>
                            <span className="text-xs text-muted-foreground uppercase tracking-wider">Following</span>
                         </div>
                         <Separator orientation="vertical" className="h-8 bg-border/60" />
-                        <div className="flex flex-col items-center hover:bg-muted/50 p-2 rounded-lg cursor-pointer transition-colors flex-1">
-                           <span className="font-bold text-xl">0</span>
+                        <div className="flex flex-col items-center hover:bg-muted/50 p-2 rounded-lg cursor-pointer transition-colors flex-1" onClick={handleOpenFollowers}>
+                           <span className="font-bold text-xl">{followersCount}</span>
                            <span className="text-xs text-muted-foreground uppercase tracking-wider">Followers</span>
                         </div>
                          <Separator orientation="vertical" className="h-8 bg-border/60" />
@@ -268,6 +299,20 @@ export default function Profile() {
                     <p>Card Footer</p>
                 </CardFooter> */}
             </Card>
+      <FollowListModal 
+          open={followersModalOpen} 
+          onOpenChange={setFollowersModalOpen} 
+          title="Followers" 
+          users={followersList} 
+          loading={followLoading} 
+      />
+      <FollowListModal 
+          open={followingModalOpen} 
+          onOpenChange={setFollowingModalOpen} 
+          title="Following" 
+          users={followingList} 
+          loading={followLoading} 
+      />
       <ProfilePicEditModal open={picModalOpen} onClose={() => setPicModalOpen(false)} />
          <UserPost />
         </div>

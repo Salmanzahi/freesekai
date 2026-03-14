@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { use, useEffect, useState } from "react"
 import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "@/lib/firebase"
 import {
@@ -20,8 +20,8 @@ import { useFollowStats, useIsFollowing, followUser, unfollowUser } from "../soc
 import type { User } from "firebase/auth"
 import { toast } from "sonner"
 
-export default function ProfilePage({ params }: { params: { profileId: string } }) {
-    const { profileId } = params;
+export default function ProfilePage({ params }: { params: Promise<{ profileId: string }> }) {
+    const { profileId } = use(params);
     
     // Auth State
     const [authUser, setAuthUser] = useState<User | null>(null);
