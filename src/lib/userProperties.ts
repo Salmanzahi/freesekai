@@ -2,6 +2,9 @@ import { UserData } from "@/global_interface/interface";
 import { firedb } from "@/lib/firebase";
 import { doc, getDoc, Timestamp } from "firebase/firestore";
 
+
+
+
 export async function getUserByUid(uid: string): Promise<UserData | null> {
   const userRef = doc(firedb, 'users', uid);
   const snapshot = await getDoc(userRef);

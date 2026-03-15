@@ -10,6 +10,7 @@ import { handleCreate, handleJoin } from "./roomHandling";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { BackComponent } from "@/components/myComponent/backComponent";
 export default function Room() {
     const router = useRouter();
     const [isAuthUser, setIsAuthUser] = useState(false);
@@ -100,7 +101,8 @@ export default function Room() {
 
     return (
         <div className="p-4">
-            <Card className="mt-24 shadow-none bg-transparent border-none">
+            <BackComponent className="ml-4 mt-16" route="/" />
+            <Card className="mt-2 shadow-none bg-transparent border-none">
                 <CardHeader>
                     <CardTitle>Room Page</CardTitle>
                     <CardDescription>
