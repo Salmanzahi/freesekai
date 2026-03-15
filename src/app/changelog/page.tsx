@@ -5,7 +5,7 @@ import { BackComponent } from "@/components/myComponent/backComponent"
 
 const changelog = [
     {
-        version: "0.3.0",
+        version: "0.9.2",
         date: "March 14, 2026",
         tag: "Latest",
         changes: [
@@ -17,7 +17,7 @@ const changelog = [
         ],
     },
     {
-        version: "0.2.0",
+        version: "0.9.1",
         date: "March 12, 2026",
         tag: null,
         changes: [
@@ -28,7 +28,7 @@ const changelog = [
         ],
     },
     {
-        version: "0.1.0",
+        version: "0.9.0",
         date: "March 10, 2026",
         tag: null,
         changes: [
