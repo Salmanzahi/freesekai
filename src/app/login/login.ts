@@ -1,11 +1,27 @@
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth, firedb } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { createuserproperties } from "../register/register";
 
-export async function loginWithEmailAndPassword(email: string, password: string) {
+export async function loginWithEmailAndPassword(emailOrUsername: string, password: string) {
     try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        let emailToUse = emailOrUsername;
+
+        // If missing '@', assume it's a username and query Firestore for the user's email
+        if (!emailOrUsername.includes('@')) {
+            const usersRef = collection(firedb, 'users');
+            const q = query(usersRef, where('username', '==', emailOrUsername));
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                throw new Error("No user found with that username.");
+            }
+
+            // Username should be unique, so just get the email of the first match
+            emailToUse = querySnapshot.docs[0].data().email;
+        }
+
+        const userCredential = await signInWithEmailAndPassword(auth, emailToUse, password);
         const user = userCredential.user;
         console.log("User logged in:", user);
         window.location.href = "/";

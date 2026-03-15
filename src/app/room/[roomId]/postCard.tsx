@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useParams } from "next/navigation"
 import { roomPosts, replyPosts } from "./postHandling"
 import { CardPostLayout } from "@/components/myComponent/cardPostLayout"
-import { likeHandlingRoom, checkUserLikeState, deletePost } from "./postHandling"
+import { likeHandlingRoom, checkUserLikeState, deletePost, sendReply } from "./postHandling"
 import { auth } from "@/lib/firebase"
 import { PostSkeleton } from "@/app/home/cardload"
 import { toast } from "sonner"
@@ -113,9 +113,19 @@ function PostCardItem({ post, roomId, onDelete }: { post: Post; roomId: string; 
         }
     }
 
-    const replyHandling = async () => {
-        console.log('pass')
+    const handleReplySend = async (content: string) => {
+        try {
+            console.log('Reply content:', content)
+            // TODO: call your reply API here, e.g.:
+            await sendReply(post.id, roomId, content, uid)
+            toast.success('Reply sent successfully')
+        } catch (e) {
+            toast.error(`Failed to send reply + ${e}`)
+        }
     }
+    // const replyHandling = async () => {
+    //     console.log('pass')
+    // }
 
     return (
         <CardPostLayout
@@ -125,7 +135,8 @@ function PostCardItem({ post, roomId, onDelete }: { post: Post; roomId: string; 
             likeCount={likeCount}
             onLike={handleLike}
             onDelete={() => onDelete(post.id)}
-            onReplyOpen={replyHandling}
+            // onReplyOpen={replyHandling}
+            onReplySend={handleReplySend}
             showDeleteButton={showDeleteButton}
             dialogueState={dialogueState}
         />

@@ -1,10 +1,10 @@
-'use client'
+'use server'
 
 
 import type { User } from "firebase/auth";
 import { supabase } from "@/lib/supabase";
 import { firedb } from "@/lib/firebase";
-import { setDoc, getDoc, doc } from "firebase/firestore";
+import { setDoc, getDoc, doc, query, collection, where, getDocs } from "firebase/firestore";
 
 export type UsernameResult = {
   username: string | null;
@@ -22,15 +22,22 @@ export async function fetchUsernameByUid(uid: string): Promise<UsernameResult> {
 }
 
 
-export async function updateUsername(uid: string, newUsername: string): Promise<void> {
+export async function updateUsername(uid: string, newUsername: string): Promise<{ok: boolean, reason?: string}> {
+  const val = await valdateUsername(newUsername);
+  if (!val.ok) return {ok: false, reason: val.reason};
   const userRef = doc(firedb, 'users', uid);
   await setDoc(userRef, { username: newUsername }, { merge: true });
+  return {ok: true};
 }
 
 
-export function validateUsername(value: string, min = 5, max = 20): { ok: boolean; reason?: string } {
-  if (/[^A-Za-z0-9_]/.test(value)) return { ok: false, reason: "invalid_chars" };
-  if (value.length < min || value.length > max) return { ok: false, reason: "length" };
+export async function validateUsername(value: string, min = 5, max = 20): Promise<{ ok: boolean; reason?: string }> {
+  if (/[^a-z0-9_]/.test(value)) return { ok: false, reason: "invalid character allowed character: a-z, 0-9, _" };
+  if (value.length < min || value.length > max) return { ok: false, reason: "length must be between 5 and 20" };
+
+  const docRef = query(collection(firedb, 'users'), where('username', '==', value));
+  const snapshot = await getDocs(docRef);
+  if (snapshot.size > 0) return { ok: false, reason: "username already taken" };
   return { ok: true };
 }
 
@@ -86,5 +93,15 @@ export async function getProfileImageUrl(uid: string): Promise<string | null> {
 }
 
 
+export async function valdateUsername(username: string): Promise<{ok: boolean, reason?: string}> {
+  
+  if (/[^A-Za-z0-9_]/.test(username)) return {ok: false, reason: "invalid_chars"};
+  if (username.length < 5 || username.length > 20) return {ok: false, reason: "length"};
+  const docRef = doc(firedb, 'users', username);
+  const snapshot = await getDoc(docRef);
+  if (snapshot.exists()) return {ok: false, reason: "already_taken"};
+  return {ok: true};
+
+}
 
 

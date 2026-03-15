@@ -1,7 +1,7 @@
 import { firedb } from "@/lib/firebase";
 import {
   collection, addDoc, setDoc, doc, getDoc,
-  serverTimestamp, query, where, getDocs, deleteDoc, Timestamp
+  serverTimestamp, query, where, getDocs, deleteDoc, Timestamp, getCountFromServer
 } from 'firebase/firestore';
 
 export interface RoomData {
@@ -24,6 +24,12 @@ export async function handleCreate(roomName: string, keyAccess: string, userId: 
   }
   try {
     const ref = collection(firedb, 'rooms')
+    // check if the same name room already exist
+    const q = query(ref, where('roomName', '==', roomName))
+    const snapshot = await getDocs(q)
+    if (!snapshot.empty) {
+      return { status: false, message: 'room already exist !', roomId: null }
+    }
     const roomRef = await addDoc(ref, roomData)
     await setDoc(doc(ref, roomRef.id, 'members', userId), {
       joinedAt: serverTimestamp(),
@@ -160,10 +166,34 @@ export async function getRoomMembers(roomId: string) {
     const snap = await getDocs(membersRef)
     return snap.docs.map(d => ({
       uid: d.id,
+      role: d.data().role as string,
       ...d.data(),
     }))
+
   } catch (e) {
     console.log(e)
     return []
+  }
+}
+
+export async function kickMember(roomId: string, userId: string) {
+  try {
+    const memberRef = doc(firedb, 'rooms', roomId, 'members', userId)
+    await deleteDoc(memberRef)
+    return true
+  } catch (e) {
+    console.log(e)
+    return false
+  }
+}
+
+export async function getRoomMemberCount(roomId: string): Promise<number> {
+  try {
+    const membersRef = collection(firedb, 'rooms', roomId, 'members')
+    const snapshot = await getCountFromServer(membersRef)
+    return snapshot.data().count
+  } catch (e) {
+    console.log(e)
+    return 0
   }
 }

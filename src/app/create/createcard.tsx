@@ -115,8 +115,8 @@ function CreatePostForm() {
                         onChange={(e) => setImage(e.target.files?.[0] || null)} />
                 </div>
                 <div className="flex items-center justify-between m-0">
-                    <Label htmlFor="show-profile">Show profile in post</Label>
-                    <Switch id="show-profile" checked={showProfile} onCheckedChange={(checked) => setShowProfile(checked)} />
+                    <Label htmlFor="show-profile">Show profile in post </Label>
+                    <Switch disabled={true} id="show-profile" checked={true} onCheckedChange={(checked) => setShowProfile(checked)} />
                 </div>
                 <p className="text-xs text-muted-foreground">Toggle whether your profile appears with the post</p>
             </div>
@@ -128,10 +128,10 @@ function CreatePostForm() {
                     <div className="text-sm font-medium">Add Spotify Track</div>
                 </div>
                 <div className="flex gap-2">
-                    <input placeholder="Search for a song..." className="flex-1 rounded-md border p-2" value={spotifyTrack} onChange={(e) => setSpotifyTrack(e.target.value)} />
-                    <Button type="button">Search</Button>
+                    <Input placeholder="Coming Soon..." className="flex-1 rounded-md border p-2" disabled={true} value={spotifyTrack} onChange={(e) => setSpotifyTrack(e.target.value)} />
+                    <Button type="button" disabled={true} >Search</Button>
                 </div>
-                <Button variant="ghost" type="button">Connect to Spotify</Button>
+                <Button variant="ghost" type="button" disabled={true} >Connect to Spotify</Button>
             </div>
 
             <Separator />

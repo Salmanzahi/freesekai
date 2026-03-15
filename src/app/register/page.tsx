@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -55,6 +55,8 @@ async function registerUser(e: React.FormEvent<HTMLFormElement>, setError: (msg:
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -88,7 +90,11 @@ export default function Register() {
         </CardHeader>
         <CardContent>
 
-          <form onSubmit={(e) => registerUser(e, setError)}>
+          <form onSubmit={async (e) => {
+            setIsLoading(true);
+            await registerUser(e, setError);
+            setIsLoading(false);
+          }}>
             {error && (
               <Alert variant="destructive" className="mb-4">
                 <AlertTitle>Error</AlertTitle>
@@ -150,17 +156,33 @@ export default function Register() {
             </div>
             {/* ✅ move submit button inside form */}
             <CardFooter className="flex-col gap-2 mt-4">
-              <Button type="submit" className="w-full">
-                Sign Up
+              <Button type="submit" className="w-full" disabled={isLoading || isGoogleLoading}>
+                {isLoading ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing up...</>
+                ) : (
+                  "Sign Up"
+                )}
               </Button>
-              <Button type="button" variant="outline" className="w-full" onClick={async () => {
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="w-full" 
+                disabled={isLoading || isGoogleLoading}
+                onClick={async () => {
+                setIsGoogleLoading(true);
                 try {
                   await registerWithGoogle();
                 } catch {
                    setError("Google Sign-In failed");
+                } finally {
+                   setIsGoogleLoading(false);
                 }
               }}>
-                Sign Up with Google
+                {isGoogleLoading ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing up with Google...</>
+                ) : (
+                  "Sign Up with Google"
+                )}
               </Button>
             </CardFooter>
           </form>

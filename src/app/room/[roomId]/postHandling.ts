@@ -1,11 +1,12 @@
 'use server'
 import { firedb } from '@/lib/firebase';
-import { collection, getDocs, onSnapshot, deleteDoc, doc, updateDoc, increment, setDoc, getDoc, addDoc } from 'firebase/firestore';
+import { collection, getDocs, onSnapshot, deleteDoc, doc, updateDoc, increment, setDoc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 // import { isAuth } from '@/lib/isauth';
 // import { isAdmin } from '@/lib/isAdmin';
 // import { getUserByUid, type UserData } from '@/lib/userProperties';
 import type { Post } from '@/global_interface/interface';
 import type { Reply } from '@/global_interface/interface';
+import { serverHooks } from 'next/dist/server/app-render/entry-base';
 
 
 /**
@@ -112,3 +113,19 @@ export async function deletePost(postId:string, roomId: string, userId: string){
     }
 }
 
+export async function sendReply(postId: string, roomId: string, content: string, userId: string){
+    try {
+        const ref = collection(firedb, 'rooms', roomId, 'posts', postId, 'replies')
+        await addDoc(ref, {
+            id: doc(ref).id,
+            text: content,
+            createdAt: serverTimestamp(),
+            userId: userId
+        })
+        return true
+    } 
+    catch (e) {
+        console.log(e)
+        return false
+    }
+}

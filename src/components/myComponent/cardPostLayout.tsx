@@ -17,8 +17,8 @@ import { type Reply } from '@/global_interface/interface';
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '../ui/drawer';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-
-
+import { Textarea } from '@/components/ui/textarea';
+import { PlaneIcon } from 'lucide-react';
 interface CardPostLayoutProps {
   post: Post;
   replies: Reply[];
@@ -34,6 +34,7 @@ interface CardPostLayoutProps {
   dialogueState?: boolean;
   onShare?: () => void;
   onDelete?: () => void;
+  onReplySend?: (content: string) => void;
   onReplyOpen?: () => void;
 }
 
@@ -102,12 +103,14 @@ export function CardPostLayout({
   onShare,
   onDelete,
   onReplyOpen,
+  onReplySend,
 }: CardPostLayoutProps) {
   const userData     = useUserData(post.userId);
   const username = userData?.username
   const userPhoto = userData?.photoURL
   const isAdminUser  = useAdminStatus(post.userId);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(dialogueState);  
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(dialogueState); 
+  const [textFieldReply, setTextFieldReply] = useState('');
   const [replyCount, setReplyCount] = useState(0);
   // const [showDelete, setShowDelete] = useState(showDeleteButton);
 //   const [liked, setLiked] = useState(false);
@@ -123,7 +126,7 @@ export function CardPostLayout({
   const displayLikeCount = likeCount ?? post.like ?? 0;
 
   return (
-    <Card className="group relative flex flex-col rounded-2xl border border-border/40 bg-card/80 backdrop-blur-sm shadow-sm hover:shadow-lg hover:border-border/60 transition-all duration-300 ease-out overflow-hidden gap-0">
+    <Card className="group relative flex flex-col rounded-2xl border border-border/40 bg-card/80 backdrop-blur-sm shadow-sm hover:shadow-lg hover:border-border/60 transition-all duration-300 ease-out overflow-hidden mb-4">
       {/* Accent line */}
       <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-purple-500/60 via-pink-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
@@ -239,16 +242,23 @@ export function CardPostLayout({
                 <DrawerContent>
                   <DrawerHeader>
                     <DrawerTitle>Replies</DrawerTitle>
-                    <DrawerDescription>
-                    
-                        <Label htmlFor="reply">Reply</Label>
-                        <Input id="reply" type="text" />
-                      
+                    <DrawerDescription>Share your thoughts on this post</DrawerDescription>
+                  </DrawerHeader>
+                  <div className="px-4 pb-4 space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="reply">Reply</Label>
+                      <Textarea onChange={(e) => setTextFieldReply(e.target.value)} id="reply" placeholder="Write your reply..." />
+                      <Button className='mt-2 w-full' variant='default' onClick={() => onReplySend?.(textFieldReply)}>
+                        <PlaneIcon />
+                        Post Reply
+                      </Button>
+                    </div>
+                    <div className="space-y-2">
                       {replies.map((reply) => (
                         <ReplyLayout key={reply.id} reply={reply} />
                       ))}
-                    </DrawerDescription>
-                  </DrawerHeader>
+                    </div>
+                  </div>
                   <DrawerFooter className="gap-2 sm:gap-2">
                     <DrawerClose asChild>
                       <Button variant="outline">Close</Button>
@@ -306,7 +316,11 @@ export function CardPostLayout({
 
 export function ReplyLayout({reply}: {reply: Reply}){
   const replyUserData = useUserData(reply.userId);
-  const formattedReplyDate = reply.createdAt?.toDate().toLocaleString();
+  const _replyDate = toJsDate(reply.createdAt);
+  const formattedReplyDate = _replyDate
+    ? `${_replyDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} · ${_replyDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`
+    : 'Just now';
+  
   return (
     <>
      <div className="group/reply flex items-start gap-3 p-3.5 rounded-xl bg-muted/25 border border-border/15 hover:bg-muted/45 hover:border-border/30 transition-all duration-200">

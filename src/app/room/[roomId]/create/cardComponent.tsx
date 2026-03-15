@@ -53,6 +53,11 @@ function CreatePostForm() {
 
     const handleSubmit = async () => {
         setBtnDisabled(true);
+        if (!title || !content) {
+            toast.error("Please fill in all the required fields!")
+            setBtnDisabled(false);
+            return;
+        }
         const pushPost = await handlePost({postData: {title, body: content, showProfile, spotifyTrack, userId}, roomParam: {roomId}, imageFile: image});
         console.log("handlePost result:", pushPost);
 
@@ -119,13 +124,13 @@ function CreatePostForm() {
 
             <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                    <div className="text-sm font-medium">Add Spotify Track</div>
+                    <div className="text-sm font-medium text-muted-foreground">Add Spotify Track (Coming Soon...)</div>
                 </div>
                 <div className="flex gap-2">
-                    <input placeholder="Search for a song..." className="flex-1 rounded-md border p-2" value={spotifyTrack} onChange={(e) => setSpotifyTrack(e.target.value)} />
-                    <Button type="button">Search</Button>
+                    <Input placeholder="Coming Soon..." className="flex-1 rounded-md border p-2" disabled={true} value={spotifyTrack} onChange={(e) => setSpotifyTrack(e.target.value)} />
+                    <Button type="button" disabled={true} >Search</Button>
                 </div>
-                <Button variant="ghost" type="button">Connect to Spotify</Button>
+                <Button variant="ghost" type="button" disabled={true} >Connect to Spotify</Button>
             </div>
 
             <Separator />

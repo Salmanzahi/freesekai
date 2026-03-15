@@ -1,0 +1,7 @@
+THINGS TO DO 
+
+1. check if username is valid character only cotain a-z, A-Z, 0-9, _
+2. check if username is not empty
+3. check if username is not longer than  p characters
+4. check if username is not shorter than q characters
+5. check if username is not already taken

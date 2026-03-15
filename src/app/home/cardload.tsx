@@ -25,6 +25,7 @@ import { type Post } from '@/global_interface/interface';
 import { type Reply } from '@/global_interface/interface';
 import { useEffect, useRef } from 'react';
 import { LucideShare2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 /** Accepts a Firestore Timestamp (has .toDate) or a raw millis number. */
 function toJsDate(value: { toDate(): Date } | number | null | undefined): Date | null {
@@ -35,6 +36,7 @@ function toJsDate(value: { toDate(): Date } | number | null | undefined): Date |
 }
 
 export  function PostCard({ post }: { post: Post }) {
+  const router = useRouter();
   const replies = useReplies(post.id);
   const [myPost, setMyPost] = useState(false);
   const userData = useUserData(post.userId);
@@ -49,6 +51,8 @@ onAuthStateChanged(auth, (user) => {
       setMyPost(user.uid === post.userId);
     }
   });
+
+
 
   const handleSendReply = async () => {
     const user = auth.currentUser;
@@ -135,44 +139,51 @@ onAuthStateChanged(auth, (user) => {
       <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-purple-500/60 via-pink-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
       {/* ── Header: avatar + name + date ── */}
-      <CardHeader className="px-5 pt-5 pb-3 gap-0">
-        <div className="flex items-center gap-3">
-          {/* Avatar with gradient ring */}
-          <div className="relative shrink-0">
-            <div className="absolute -inset-[2px] rounded-full bg-gradient-to-br from-purple-500 to-pink-500 opacity-60" />
-            <Avatar className="relative w-9 h-9 ring-2 ring-background">
-              <AvatarImage src={userData?.photoURL || ''} alt={userData?.username || 'User'} />
-              <AvatarFallback className="bg-gradient-to-br from-purple-600 to-pink-500 text-white text-xs font-bold">
-                {(userData?.username || 'U').substring(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-          </div>
+      <CardHeader className="px-5 pt-5 pb-3 gap-0 w-1/4 ">
+        <Button
+          variant="ghost"
+          className="flex items-center justify-start h-auto w-auto p-2 bg-transparent"
+          onClick={() => router.push(`/profile/${post.userId}`)}
+        >
+          <div className="flex items-center gap-3">
+            {/* Avatar with gradient ring */}
+            <div className="relative shrink-0">
+              <div className="absolute -inset-[2px] rounded-full bg-gradient-to-br from-purple-500 to-pink-500 opacity-60" />
+              <Avatar className="relative w-9 h-9 ring-2 ring-background">
+                <AvatarImage src={userData?.photoURL || ''} alt={userData?.username || 'User'} />
+                <AvatarFallback className="bg-gradient-to-br from-purple-600 to-pink-500 text-white text-xs font-bold">
+                  {(userData?.username || 'U').substring(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </div>
 
-          {/* Name + timestamp */}
-          <div className="flex flex-col min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-foreground truncate">
-                {userData?.username || 'Unknown'}
-              </span>
-              {isAdminUser && (
-                <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-white leading-none">
-                  Admin
+            {/* Name + timestamp */}
+            <div className="flex flex-col min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-foreground truncate">
+                  {userData?.username || 'Unknown'}
                 </span>
-              )}
-            </div>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Clock className="w-3 h-3" />
-              <span>{formattedDate}</span>
-              {formattedTime && (
-                <>
-                  <span className="text-muted-foreground/40">·</span>
-                  <span>{formattedTime}</span>
-                </>
-              )}
+                {isAdminUser && (
+                  <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-white leading-none">
+                    Admin
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Clock className="w-3 h-3" />
+                <span>{formattedDate}</span>
+                {formattedTime && (
+                  <>
+                    <span className="text-muted-foreground/40">·</span>
+                    <span>{formattedTime}</span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        </Button>
       </CardHeader>
+     
 
       {/* ── Content ── */}
       <CardContent className="px-5 pb-4 pt-0 flex-grow space-y-3">
