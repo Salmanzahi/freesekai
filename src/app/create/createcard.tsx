@@ -6,14 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Send } from 'lucide-react';
+import { Send, X } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import QuillEditor from '@/components/qleditor';
 import { useState, useEffect } from 'react';
 import { isAuth } from '@/lib/isauth';
 import { auth } from '@/lib/firebase';
-import { handlePost } from './createhandling';
+import { handlePost, handleMusic } from './createhandling';
 import { toast } from "sonner";
+import { trackData } from '@/global_interface/interface';
 
 export function CreateCard() {
     const [authCheck, setAuthCheck] = useState<boolean>();
@@ -47,6 +48,7 @@ function CreatePostForm() {
     const [spotifyTrack, setSpotifyTrack] = useState<string>("");
     const [userId, setUserId] = useState<string>("");
     const [btnDisabled, setBtnDisabled] = useState<boolean>(false);
+    const [trackData, setTrackData] = useState<trackData | null>(null);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -57,9 +59,36 @@ function CreatePostForm() {
         return () => unsubscribe();
     }, []);
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (spotifyTrack.trim()) {
+                handleMusicEvent(spotifyTrack);
+            }
+        }, 800);
+        return () => clearTimeout(timer);
+    }, [spotifyTrack]);
+
+
+    const handleMusicEvent = async (query: string) => {
+        const musicData = await handleMusic(query);
+        if (musicData.status) {
+            setTrackData(musicData.content as trackData);
+        } else {
+            toast.error("Failed to fetch music data!", {
+                description: "Please try again later."
+            });
+            return;
+        }
+    }
+
+    const handleClearMusic = () => {
+        setTrackData(null);
+        setSpotifyTrack("");
+    }
+
     const handleSubmit = async () => {
         setBtnDisabled(true);
-        const pushPost = await handlePost(title, content, image, showProfile, spotifyTrack, userId);
+        const pushPost = await handlePost(title, content, image, showProfile, trackData, userId);
         console.log("handlePost result:", pushPost);
 
         if (pushPost) {
@@ -128,10 +157,52 @@ function CreatePostForm() {
                     <div className="text-sm font-medium">Add Spotify Track</div>
                 </div>
                 <div className="flex gap-2">
-                    <Input placeholder="Coming Soon..." className="flex-1 rounded-md border p-2" disabled={true} value={spotifyTrack} onChange={(e) => setSpotifyTrack(e.target.value)} />
-                    <Button type="button" disabled={true} >Search</Button>
+                    <Input placeholder="Search for a track..." className="flex-1 rounded-md border p-2"  value={spotifyTrack} onChange={(e) => setSpotifyTrack(e.target.value)} />
                 </div>
-                <Button variant="ghost" type="button" disabled={true} >Connect to Spotify</Button>
+                {trackData && (
+                    <div className="mt-2 overflow-hidden border rounded-lg shadow-sm relative">
+                        <div className="flex flex-row p-3 gap-3 items-center bg-zinc-50 dark:bg-zinc-900/50 pr-10">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img 
+                                src={trackData.artworkUrl100} 
+                                alt={`${trackData.trackName} artwork`} 
+                                className="w-14 h-14 sm:w-16 sm:h-16 rounded-md object-cover shadow-sm border flex-shrink-0"
+                            />
+                            <div className="flex flex-col flex-1 min-w-0">
+                                <h4 className="text-sm sm:text-base font-bold truncate tracking-tight text-foreground">
+                                    {trackData.trackName}
+                                </h4>
+                                <p className="text-xs sm:text-sm text-muted-foreground font-medium truncate mb-2">
+                                    {trackData.artistName} &bull; {trackData.collectionName}
+                                </p>
+                                
+                                {trackData.previewUrl ? (
+                                    <audio 
+                                        controls 
+                                        src={trackData.previewUrl} 
+                                        className="w-full h-8 outline-none [&::-webkit-media-controls-panel]:bg-transparent [&::-webkit-media-controls-panel]:p-0 [&::-webkit-media-controls-enclosure]:bg-transparent"
+                                        title="Listen to preview"
+                                    >
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                ) : (
+                                    <p className="text-xs text-muted-foreground italic">No preview available.</p>
+                                )}
+                            </div>
+                        </div>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            type="button"
+                            className="absolute top-2 right-2 h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                            onClick={handleClearMusic}
+                            title="Remove track"
+                        >
+                            <X size={16} />
+                        </Button>
+                    </div>
+                )}
+                <Button variant="ghost" type="button" ></Button>
             </div>
 
             <Separator />

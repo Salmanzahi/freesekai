@@ -10,6 +10,7 @@ import { getUserByUid } from '@/lib/userProperties';
 import { type UserData } from "@/global_interface/interface";
 import { supabase } from "@/lib/supabase";
 import { Post, Reply } from '@/global_interface/interface';
+
 // ─── Hooks ───────────────────────────────────────────────
 
 export  function useAuthStatus() {

@@ -207,10 +207,10 @@ const Nav = () => {
         <div className='rounded-lg flex flex-row items-center justify-center '>
            <div className="flex flex-col items-start">
             <h1 className="text-2xl md:text-3xl font-bold tracking-wider freesekai-gradient group-hover:animate-pulse">
-              FREESEKAI
+              SOCIOSEKAI
             </h1>
             <p className="text-center text-xs md:text-sm tracking-normal text-muted-foreground font-medium opacity-80">
-              Anonymous Forum
+             Multimodal Forum
             </p>
           </div>
            <div className="ml-3">
@@ -274,10 +274,10 @@ const Nav = () => {
           <DrawerContent className="border-border/50">
             <DrawerHeader className="text-center space-y-2">
               <DrawerTitle className="freesekai-gradient text-2xl font-bold tracking-wider">
-                FREESEKAI
+                SOCIOSEKAI
               </DrawerTitle>
               <DrawerDescription className="text-muted-foreground">
-                Explore our community links
+                Socios n their Freedom
               </DrawerDescription>
             </DrawerHeader>
 
