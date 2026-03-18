@@ -136,7 +136,7 @@ onAuthStateChanged(auth, (user) => {
   return (
     <Card className="group relative flex flex-col rounded-2xl border border-border/40 bg-card/80 backdrop-blur-sm shadow-sm hover:shadow-lg hover:border-border/60 transition-all duration-300 ease-out overflow-hidden gap-0">
       {/* Subtle gradient accent line at top */}
-      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-purple-500/60 via-pink-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      {/* <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-purple-500/60 via-pink-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" /> */}
 
       {/* ── Header: avatar + name + date ── */}
       <CardHeader className="px-5 pt-5 pb-3 gap-0 w-1/4 ">
@@ -148,10 +148,9 @@ onAuthStateChanged(auth, (user) => {
           <div className="flex items-center gap-3">
             {/* Avatar with gradient ring */}
             <div className="relative shrink-0">
-              <div className="absolute -inset-[2px] rounded-full bg-gradient-to-br from-purple-500 to-pink-500 opacity-60" />
-              <Avatar className="relative w-9 h-9 ring-2 ring-background">
-                <AvatarImage src={userData?.photoURL || ''} alt={userData?.username || 'User'} />
-                <AvatarFallback className="bg-gradient-to-br from-purple-600 to-pink-500 text-white text-xs font-bold">
+              <Avatar className="border-1 border-blue-400">
+                <AvatarImage className=''src={userData?.photoURL || ''} alt={userData?.username || 'User'} />
+                <AvatarFallback className="bg-gradient-to-br from-blue-400 to-blue-600 text-white text-xs font-bold">
                   {(userData?.username || 'U').substring(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
@@ -213,6 +212,41 @@ onAuthStateChanged(auth, (user) => {
                 objectFit: 'contain',
               }}
             />
+          </div>
+        )}
+
+        {/* Music Track Preview */}
+        {post.songTrack && (
+          <div className="mt-2 overflow-hidden border border-border/40 rounded-xl shadow-sm relative">
+            <div className="flex flex-row p-3 gap-3 items-center bg-muted/10">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src={post.songTrack.artworkUrl100} 
+                alt={`${post.songTrack.trackName} artwork`} 
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-md object-cover shadow-sm border border-border/30 flex-shrink-0"
+              />
+              <div className="flex flex-col flex-1 min-w-0">
+                <h4 className="text-sm sm:text-base font-bold truncate tracking-tight text-foreground">
+                  {post.songTrack.trackName}
+                </h4>
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium truncate mb-2">
+                  {post.songTrack.artistName} &bull; {post.songTrack.collectionName}
+                </p>
+                
+                {post.songTrack.previewUrl ? (
+                  <audio 
+                    controls 
+                    src={post.songTrack.previewUrl} 
+                    className="w-full h-8 outline-none [&::-webkit-media-controls-panel]:bg-transparent [&::-webkit-media-controls-panel]:p-0 [&::-webkit-media-controls-enclosure]:bg-transparent"
+                    title="Listen to preview"
+                  >
+                    Your browser does not support the audio element.
+                  </audio>
+                ) : (
+                  <p className="text-xs text-muted-foreground italic">No preview available.</p>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </CardContent>
@@ -431,9 +465,9 @@ export default function CardLoad() {
   if (loading) {
     return (
       <div className="px-4 max-w-2xl mx-auto">
-        <h1 className="mt-20 text-center text-4xl md:text-5xl font-extrabold tracking-tight mb-10 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+        {/* <h1 className="mt-20 text-center text-4xl md:text-5xl font-extrabold tracking-tight mb-10 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
           Latest Posts
-        </h1>
+        </h1> */}
         <div className="space-y-5">
           {[1, 2, 3].map((i) => (
             <PostSkeleton key={i} />
@@ -445,10 +479,10 @@ export default function CardLoad() {
 
   return (
     <div className="px-4 max-w-2xl mx-auto">
-      <h1 className="mt-20 text-center text-4xl md:text-5xl font-extrabold tracking-tight mb-10 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+      {/* <h1 className="mt-20 text-center text-4xl md:text-5xl font-extrabold tracking-tight mb-10 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
         Latest Posts
-      </h1>
-      <div className="space-y-5">
+      </h1> */}
+      <div className="space-y-5 mt-4">
         {posts.length > 0 ? (
           posts.map(post => <PostCard key={post.id} post={post} />)
         ) : (

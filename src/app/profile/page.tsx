@@ -121,8 +121,8 @@ export default function Profile() {
   ]
 
   return (
-    <div className="min-h-screen items-center justify-center align-middle pt-12 sm:pt-24 px-2 sm:px-4">
-      <BackComponent className="ml-4 mt-6" route="/" />
+    <div className="min-h-screen items-center justify-center align-middle  sm:pt-24 px-2 sm:px-4">
+      <BackComponent className="ml-4 mt-4 md:mt-0" route="/" />
       <ProfileHeader
         title="Ur Profile"
         avatarSrc={profileImg ?? auth.currentUser?.photoURL}

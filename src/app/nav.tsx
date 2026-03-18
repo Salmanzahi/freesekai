@@ -26,7 +26,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 import Link from 'next/link';
-import { Menu, ChevronDown } from 'lucide-react';
+import { Menu, ChevronDown, Home, PlusSquare, MessagesSquare } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { ModeToggle } from '@/components/mode-toggle';
 import { signOut } from "firebase/auth";
@@ -158,7 +158,7 @@ const Nav = () => {
   const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [visible, setVisible] = useState(true);
   const [isTransparent, setIsTransparent] = useState(true);
-  const [, setIsAuthUser] = useState(false);
+  const [isAuthUser, setIsAuthUser] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
@@ -192,8 +192,9 @@ const Nav = () => {
   };
 
   return (
+    <>
     <nav
-      className={`fixed top-0 left-0 w-full px-4 md:px-6 py-3 md:py-4 flex items-center justify-between z-50 transition-all duration-300 ${
+      className={`hidden md:flex fixed top-0 left-0 w-full px-4 md:px-6 py-3 md:py-4 items-center justify-between z-50 transition-all duration-300 ${
         isTransparent
           ? 'bg-transparent'
           : 'bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/90 border-b border-border/40 shadow-lg shadow-black/5'
@@ -207,10 +208,10 @@ const Nav = () => {
         <div className='rounded-lg flex flex-row items-center justify-center '>
            <div className="flex flex-col items-start">
             <h1 className="text-2xl md:text-3xl font-bold tracking-wider freesekai-gradient group-hover:animate-pulse">
-              FREESEKAI
+              SOCIOSEKAI
             </h1>
             <p className="text-center text-xs md:text-sm tracking-normal text-muted-foreground font-medium opacity-80">
-              Anonymous Forum
+             Multimodal Forum
             </p>
           </div>
         </div>
@@ -269,10 +270,10 @@ const Nav = () => {
           <DrawerContent className="border-border/50">
             <DrawerHeader className="text-center space-y-2">
               <DrawerTitle className="freesekai-gradient text-2xl font-bold tracking-wider">
-                FREESEKAI
+                SOCIOSEKAI
               </DrawerTitle>
               <DrawerDescription className="text-muted-foreground">
-                Explore our community links
+                Socios n their Freedom
               </DrawerDescription>
             </DrawerHeader>
 
@@ -311,6 +312,60 @@ const Nav = () => {
         </Drawer>
       </div>
     </nav>
+
+    {/* ── Mobile Bottom Navigation ── */}
+    <div className="md:hidden fixed bottom-0 left-0 w-full z-50 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/90 border-t border-border/40 pb-safe shadow-[0_-5px_15px_-10px_rgba(0,0,0,0.1)]">
+      <div className="flex items-center justify-around px-2 py-2">
+        <Link href="/" className="flex flex-col items-center gap-1 p-2 text-muted-foreground hover:text-foreground transition-colors w-16">
+          <Home className="w-5 h-5" />
+          <span className="text-[10px] font-medium">Home</span>
+        </Link>
+        <Link href="/create" className="flex flex-col items-center gap-1 p-2 text-muted-foreground hover:text-foreground transition-colors w-16">
+          <PlusSquare className="w-5 h-5" />
+          <span className="text-[10px] font-medium">Create</span>
+        </Link>
+        <Link href="/room" className="flex flex-col items-center gap-1 p-2 text-muted-foreground hover:text-foreground transition-colors w-16">
+          <MessagesSquare className="w-5 h-5" />
+          <span className="text-[10px] font-medium">Rooms</span>
+        </Link>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="flex flex-col items-center gap-1 p-2 text-muted-foreground hover:text-foreground transition-colors w-16 outline-none">
+              <Menu className="w-5 h-5" />
+              <span className="text-[10px] font-medium">Other</span>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-48 mb-2 z-[100]" align="end" side="top">
+            <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">Account</div>
+            {isAuthUser ? (
+              <>
+                <DropdownMenuItem className="cursor-pointer" asChild>
+                  <Link href="/profile" className="w-full">Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer" onSelect={(e) => { e.preventDefault(); handleSignOut(); }}>
+                  Sign Out
+                </DropdownMenuItem>
+              </>
+            ) : (
+              <>
+                <DropdownMenuItem className="cursor-pointer" asChild>
+                  <Link href="/login" className="w-full">Sign In</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer" asChild>
+                  <Link href="/register" className="w-full">Register</Link>
+                </DropdownMenuItem>
+              </>
+            )}
+            <div className="my-1 h-px bg-border/50" />
+            <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">Explore</div>
+            <DropdownMenuItem className="cursor-pointer" asChild>
+              <Link href="/changelog" className="w-full">Changelog</Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
+    </>
   );
 };
 

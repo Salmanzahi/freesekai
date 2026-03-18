@@ -31,7 +31,6 @@ export interface Reply {
  * @property {number | undefined} like - The number of likes on the post
  */
 export interface Post {
-
  
   id: string
   body: string;
@@ -39,7 +38,8 @@ export interface Post {
   image: string | null;
   imageFile: File | null;
   showProfile: boolean;
-  spotifyTrack: string;
+  spotifyTrack?: string;
+  songTrack?: trackData | null;
   title: string;
   userId: string;
   like?: number;
@@ -58,3 +58,70 @@ export interface UserData {
   createdAt: Timestamp;
 }
 
+
+
+
+/**
+ * Track data interface
+ * @interface trackData
+ * @property {string} wrapperType - The type of the wrapper
+ * @property {string} kind - The kind of the track
+ * @property {number} artistId - The ID of the artist
+ * @property {number} collectionId - The ID of the collection
+ * @property {number} trackId - The ID of the track
+ * @property {string} artistName - The name of the artist
+ * @property {string} collectionName - The name of the collection
+ * @property {string} trackName - The name of the track
+ * @property {string} collectionCensoredName - The censored name of the collection
+ * @property {string} trackCensoredName - The censored name of the track
+ * @property {string} artistViewUrl - The URL of the artist
+ * @property {string} collectionViewUrl - The URL of the collection
+ * @property {string} trackViewUrl - The URL of the track
+ * @property {string} previewUrl - The URL of the preview
+ * @property {string} artworkUrl30 - The URL of the artwork
+ * @property {string} artworkUrl60 - The URL of the artwork
+ * @property {string} artworkUrl100 - The URL of the artwork
+ * @property {string} releaseDate - The release date of the track
+ * @property {string} collectionExplicitness - The explicitness of the collection
+ * @property {string} trackExplicitness - The explicitness of the track
+ * @property {number} discCount - The number of discs
+ * @property {number} discNumber - The number of the disc
+ * @property {number} trackCount - The number of tracks
+ * @property {number} trackNumber - The number of the track
+ * @property {number} trackTimeMillis - The time of the track in milliseconds
+ * @property {string} country - The country of the track
+ * @property {string} currency - The currency of the track
+ * @property {string} primaryGenreName - The primary genre name of the track
+ * @property {boolean} isStreamable - Whether the track is streamable
+ */
+ export interface trackData {
+    wrapperType: string;
+    kind: string;
+    artistId: number;
+    collectionId: number;
+    trackId: number;
+    artistName: string;
+    collectionName: string;
+    trackName: string;
+    collectionCensoredName: string;
+    trackCensoredName: string;
+    artistViewUrl: string;
+    collectionViewUrl: string;
+    trackViewUrl: string;
+    previewUrl: string;
+    artworkUrl30: string;
+    artworkUrl60: string;
+    artworkUrl100: string;
+    releaseDate: string;
+    collectionExplicitness: string;
+    trackExplicitness: string;
+    discCount: number;
+    discNumber: number;
+    trackCount: number;
+    trackNumber: number;
+    trackTimeMillis: number;
+    country: string;
+    currency: string;
+    primaryGenreName: string;
+    isStreamable: boolean;
+ }

@@ -5,17 +5,18 @@ import { isAuth } from "@/lib/isauth";
 import { firedb} from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp, doc, setDoc} from 'firebase/firestore';
 import { supabase } from "@/lib/supabase";
+import { trackData } from "@/global_interface/interface";
  export async function isAuthUser(){
     return await isAuth();
  }
 
 
- export async function handlePost(title: string, body: string, image: File | null, showProfile: boolean, spotifyTrack: string, userId: string){
+ export async function handlePost(title: string, body: string, image: File | null, showProfile: boolean, songTrack: trackData | null, userId: string){
     const postData = {
         title,
         body,
         showProfile,
-        spotifyTrack,
+        songTrack : songTrack as trackData,
         createdAt: serverTimestamp(),
         userId: userId
     }
@@ -59,4 +60,22 @@ import { supabase } from "@/lib/supabase";
     return publicUrl;
  }
 
- 
+ export async function handleMusic(query: string){
+    try {
+    const formattedquery = query.replace(/\s+/g, "+");
+    console.log(formattedquery)
+    const api =  await fetch(`https://itunes.apple.com/search?term=${formattedquery}&entity=song&limit=1`)
+    const data = await api.json()
+    console.log(data)
+    const trackData = data.results[0];
+    return {status:true, content: trackData as trackData};
+
+    } catch(e){
+        return {status:false, content: e}
+    }
+   
+
+ }
+
+
+
