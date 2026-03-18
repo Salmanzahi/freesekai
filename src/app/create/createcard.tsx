@@ -154,7 +154,7 @@ function CreatePostForm() {
 
             <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                    <div className="text-sm font-medium">Add Spotify Track</div>
+                    <div className="text-sm font-medium">Add Song/Audio </div>
                 </div>
                 <div className="flex gap-2">
                     <Input placeholder="Search for a track..." className="flex-1 rounded-md border p-2"  value={spotifyTrack} onChange={(e) => setSpotifyTrack(e.target.value)} />
@@ -202,14 +202,14 @@ function CreatePostForm() {
                         </Button>
                     </div>
                 )}
-                <Button variant="ghost" type="button" ></Button>
+
             </div>
 
             <Separator />
 
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2 w-full">
-                    <Button type='submit' className="flex items-center gap-2 w-full" onClick={handleSubmit} disabled={btnDisabled} >
+                    <Button type='submit' className="flex items-center gap-2 w-full mb-12" onClick={handleSubmit} disabled={btnDisabled} >
                         <Send size={16} />
                         Post
                     </Button>

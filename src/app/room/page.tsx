@@ -101,7 +101,7 @@ export default function Room() {
 
     return (
         <div className="p-4">
-            <BackComponent className="ml-4 mt-16" route="/" />
+            <BackComponent className="ml-4 mt-4 md:mt-16" route="/" />
             <Card className="mt-2 shadow-none bg-transparent border-none">
                 <CardHeader>
                     <CardTitle>Room Page</CardTitle>
