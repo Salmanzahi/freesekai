@@ -314,7 +314,7 @@ const Nav = () => {
     </nav>
 
     {/* ── Mobile Bottom Navigation ── */}
-    <div className="md:hidden fixed bottom-0 left-0 w-full z-50 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/90 border-t border-border/40 pb-safe shadow-[0_-5px_15px_-10px_rgba(0,0,0,0.1)]">
+    <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 w-[85%] sm:w-3/4 z-50 bg-background/60 backdrop-blur-lg supports-[backdrop-filter]:bg-background/50 border border-border/40 rounded-full pb-safe shadow-lg">
       <div className="flex items-center justify-around px-2 py-2">
         <Link href="/" className="flex flex-col items-center gap-1 p-2 text-muted-foreground hover:text-foreground transition-colors w-16">
           <Home className="w-5 h-5" />

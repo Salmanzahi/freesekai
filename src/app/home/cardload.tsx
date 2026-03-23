@@ -22,11 +22,11 @@ import {
   useAdminStatus,
   newReplies} from './cardloadLogic';
 import { type Post } from '@/global_interface/interface';
-import { type Reply } from '@/global_interface/interface';
+import { type Reply, type UserData} from '@/global_interface/interface';
 import { useEffect, useRef } from 'react';
 import { LucideShare2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-
+import { Badge } from '@/components/ui/badge';
 /** Accepts a Firestore Timestamp (has .toDate) or a raw millis number. */
 function toJsDate(value: { toDate(): Date } | number | null | undefined): Date | null {
   if (!value) return null;
@@ -88,8 +88,8 @@ onAuthStateChanged(auth, (user) => {
   };
 
   const handleSharePost = async () => {
-   const webUrl = window.location.href;
-   const postUrl = `${webUrl}posts/${post.id}`;
+   const webUrl = window.location.origin;
+   const postUrl = `${webUrl}/posts/${post.id}`;
    navigator.clipboard.writeText(postUrl); 
    alert("Post shared successfully!");
   };
@@ -153,21 +153,26 @@ onAuthStateChanged(auth, (user) => {
                 <AvatarFallback className="bg-gradient-to-br from-blue-400 to-blue-600 text-white text-xs font-bold">
                   {(userData?.username || 'U').substring(0, 2).toUpperCase()}
                 </AvatarFallback>
+            
               </Avatar>
+               
             </div>
 
             {/* Name + timestamp */}
-            <div className="flex flex-col min-w-0">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-row min-w-0  items-center">
+              <div>
+   <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-foreground truncate">
                   {userData?.username || 'Unknown'}
+              
                 </span>
-                {isAdminUser && (
+                {/* {isAdminUser && (
                   <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-white leading-none">
                     Admin
                   </span>
-                )}
+                )} */}
               </div>
+    
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Clock className="w-3 h-3" />
                 <span>{formattedDate}</span>
@@ -177,6 +182,15 @@ onAuthStateChanged(auth, (user) => {
                     <span>{formattedTime}</span>
                   </>
                 )}
+              </div>
+              </div>
+              <div>
+                {userData?.isAdmin && (
+                 <Badge className='ml-4' variant='outline'>
+                  Admin
+                </Badge>  
+                )}
+                
               </div>
             </div>
           </div>

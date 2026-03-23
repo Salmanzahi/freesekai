@@ -16,5 +16,9 @@ export async function getUserByUid(uid: string): Promise<UserData | null> {
     username: data.username ?? 'Unknown',
     photoURL: data.photoURL ?? null,
     createdAt: data.createdAt ?? Timestamp.now(),
+    isAdmin: data.isAdmin as boolean,
+    email: data.email ?? null,
+    uid: data.uid ?? null,
+    
   };
 }

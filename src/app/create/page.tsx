@@ -1,7 +1,9 @@
 'use client';
 
 import { CreateCard } from './createcard';
+import { Skeleton} from '@/components/ui/skeleton'
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { Suspense } from 'react';
 export default function CreatePage() {
     return (
             <div className="flex flex-col items-center justify-center mt-4 md:mt-24 md:w-3/4 md:mx-auto">

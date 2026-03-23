@@ -6,6 +6,7 @@ import { firedb} from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp, doc, setDoc} from 'firebase/firestore';
 import { supabase } from "@/lib/supabase";
 import { trackData } from "@/global_interface/interface";
+
  export async function isAuthUser(){
     return await isAuth();
  }
@@ -60,6 +61,10 @@ import { trackData } from "@/global_interface/interface";
     return publicUrl;
  }
 
+
+
+//  async function deleteImage()
+
  export async function handleMusic(query: string){
     try {
     const formattedquery = query.replace(/\s+/g, "+");
@@ -77,5 +82,6 @@ import { trackData } from "@/global_interface/interface";
 
  }
 
+ 
 
 

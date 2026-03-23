@@ -56,6 +56,9 @@ export interface UserData {
   username: string;
   photoURL: string | null;
   createdAt: Timestamp;
+  isAdmin: boolean;
+  email: string | null;
+  uid: string | null;
 }
 
 

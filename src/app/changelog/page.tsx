@@ -2,6 +2,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { BackComponent } from "@/components/myComponent/backComponent"
+import { useState, useEffect } from "react"
+import { type Changelog, getChangelog } from "./changelogHandling"
+import { ChangelogCard } from "./changelogCard"
 
 const changelog = [
     {
@@ -48,9 +51,23 @@ const typeConfig: Record<string, { label: string; variant: "default" | "secondar
 }
 
 export default function ChangelogPage() {
+    const [changelogs, setChangelogs] = useState<Changelog[]>([]);
+    useEffect(() => {
+        const fetchChangelogs = async () => {
+            const result = await getChangelog();
+            if (result.success) {
+                setChangelogs(result.changelog);
+            }
+        };
+        fetchChangelogs();
+    }, [])
     return (
         <div className="min-h-screen pt-20 pb-16 px-4">
+            {changelogs.map((changelog) => (
+                <ChangelogCard key={changelog.id} changelog={changelog} />
+            ))}
             <div className="max-w-2xl mx-auto">
+
                 <BackComponent className="mb-6"  />
 
                 {/* Page header */}
