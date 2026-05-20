@@ -15,7 +15,7 @@ import { auth } from '@/lib/firebase';
 import { handlePost, handleMusic } from './createhandling';
 import { toast } from "sonner";
 import { trackData } from '@/global_interface/interface';
-
+import Tiptap from '@/components/myComponent/tipTap';
 export function CreateCard() {
     const [authCheck, setAuthCheck] = useState<boolean>();
 
@@ -74,7 +74,7 @@ function CreatePostForm() {
         if (musicData.status) {
             setTrackData(musicData.content as trackData);
         } else {
-            toast.error("Failed to fetch music data!", {
+            toast.error(`Failed to fetch music data! ${musicData.content}`, {
                 description: "Please try again later."
             });
             return;
@@ -130,6 +130,8 @@ function CreatePostForm() {
                         onChange={(e) => setContent(e)}
                         placeholder="Include all the information someone would need to answer your question or understand your post" />
                 </div>
+                <p>Text Editor test</p>
+                <Tiptap />
             </div>
 
             <div className="space-y-4">

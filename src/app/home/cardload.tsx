@@ -54,6 +54,7 @@ onAuthStateChanged(auth, (user) => {
 
 
 
+
   const handleSendReply = async () => {
     const user = auth.currentUser;
     if (replyText.trim() && user) {
@@ -186,11 +187,10 @@ onAuthStateChanged(auth, (user) => {
               </div>
               <div>
                 {userData?.isAdmin && (
-                 <Badge className='ml-4' variant='outline'>
+                 <Badge className='ml-4' variant='secondary'>
                   Admin
                 </Badge>  
                 )}
-                
               </div>
             </div>
           </div>
